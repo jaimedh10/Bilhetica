@@ -2,6 +2,8 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
     
     public override void beforeUpdate() {
         fillSessionDT(trigger.new);
+        checkMaxCapacity(trigger.new);
+
     }
     public override void beforeInsert() {
         fillSessionDT(trigger.new);
@@ -19,6 +21,22 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
         }
     }
     
+    // Método de atualização do status da sessão com base na comparação entre a capacidade do espaço e o número de bilhetes vendidos
+    private static void checkMaxCapacity(List<Session__c> sessionList) {
+
+        try {
+            for(Session__c s : sessionList) {
+                System.debug(s.Max_Capacity__c );
+                System.debug(s.Tickets_Sold__c);
+                if(s.Tickets_Sold__c < s.Max_Capacity__c) {
+                    continue;
+                }
+                s.Status__c = 'Sold Out';
+            }
+        } catch (Exception e) {
+            System.debug('Erro no update ' + e.getMessage() + ' na linha ' + e.getLineNumber());
+        }
+    }
 
 
 }
