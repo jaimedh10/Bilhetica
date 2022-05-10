@@ -1,5 +1,5 @@
 import { LightningElement, api } from "lwc";
-import { updateRecord } from "lightning/uiRecordApi";
+//import { updateRecord } from "lightning/uiRecordApi";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import SESSION_OBJECT from "@salesforce/schema/Session__c";
 import SESSION_VENUE_OBJECT from "@salesforce/schema/Session_Venue__c";
@@ -23,6 +23,7 @@ export default class SessionWizard extends LightningElement {
   venueListEmpty;
   showSessionsSaved = false;
   showCloningModal = false;
+  showBasedOnRecordId = false;
   // Listas
   sessions = undefined;
   sessionVenues = undefined;
@@ -46,6 +47,8 @@ export default class SessionWizard extends LightningElement {
 
 
 
+
+  // Método para apresentar o modal de clonagem de sessões
   toggleCloningModal() {
     if (this.sessionsToClone === undefined || this.sessionsToClone.length == 0)
       this.dispatchToast("Warning", "There are no selected sessions", "info");
@@ -61,29 +64,47 @@ export default class SessionWizard extends LightningElement {
         "In order to clone Sessions, you need to choose the periodicity",
         "info"
       );
-    } 
-    else {
-      cloneSessionsAndSessionVenues({sessionIdList: this.sessionsToClone, peridiocityValue: this.peridiocityValue})
+    } else {
+      cloneSessionsAndSessionVenues({
+        sessionIdList: this.sessionsToClone,
+        peridiocityValue: this.peridiocityValue
+      })
         .then((result) => {
           console.log(result);
           this.hideLoading();
+          if (result === false) {
+            this.dispatchToast(
+              "Warning",
+              "It wasn't possible to clone for the selected periodicity.",
+              "info"
+            );
+          } else {
+            this.dispatchToast(
+              "Success!",
+              "The Session(s) were successfully cloned.",
+              "success"
+            );
+          }
         })
         .catch((error) => {
           this.error = error;
           console.log(error);
           this.hideLoading();
+          this.errorDefaultMessage();
         });
     }
   }
 
   handleCheckboxChange(event) {
+    var i;
     this.checkboxValue = event.currentTarget.checked;
     this.sessionId = event.currentTarget.dataset.session;
-    if (this.checkboxValue == true) {
+    
+    if (this.checkboxValue === true) {
       this.sessionsToClone.push(this.sessionId);
     } else {
-      for (var i = 0; i < this.sessionsToClone.length; i++) {
-        if (this.sessionsToClone[i] == this.sessionId) {
+      for (i = 0; i < this.sessionsToClone.length; i++) {
+        if (this.sessionsToClone[i] === this.sessionId) {
           this.sessionsToClone.splice(i, 1);
         }
       }
@@ -93,12 +114,12 @@ export default class SessionWizard extends LightningElement {
 
   handlePeridiocityChange(event) {
     this.peridiocityValue = event.detail.value;
-  } 
-  
+  }
+
   // Método para pesquisar o espaço com base no termo de pesquisa introduzido
   handleSearch(event) {
     this.queryTerm = event.target.value;
-    findVenues({ queryTerm: this.queryTerm, recordId: this.recordId })
+    findVenues({ queryTerm: this.queryTerm }) // recordId: this.recordId
       .then((result) => {
         if (result.length > 0) {
           this.venues = result;
@@ -125,7 +146,7 @@ export default class SessionWizard extends LightningElement {
       "The Session record has been successfully saved.",
       "success"
     );
-    updateRecord({ fields: { Id: this.recordId } });
+    //updateRecord({ fields: { Id: this.recordId } }); não está a fazer o efeito pretendido
     this.sessionId = event.detail.id;
     let sessionsIdList;
 
@@ -169,6 +190,8 @@ export default class SessionWizard extends LightningElement {
     this.venueId = event.currentTarget.dataset.venue;
     this.venues = undefined;
     this.venueSelected = true;
+    this.checkForEventId();
+    this.hideLoading();
   }
 
   hideLoading() {
@@ -177,6 +200,13 @@ export default class SessionWizard extends LightningElement {
 
   showLoading() {
     this.isLoading = true;
+  }
+
+  checkForEventId() {
+    console.log(this.recordId);
+    if (this.recordId != null || this.recordId !== undefined) {
+      this.showBasedOnRecordId = true;
+    }
   }
 
   successfulUpdate() {
