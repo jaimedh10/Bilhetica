@@ -37,7 +37,7 @@
       <template if:true={venueSelected}>
         <!-- apresenta o formulário de criação da sessão -->
         <lightning-record-edit-form object-api-name={sessionObject} onsuccess={handleSuccess} onload={hideLoading}
-          onsubmit={showLoading}>
+          onsubmit={showLoading} onerror={errorDefaultMessage}>
           <lightning-messages> </lightning-messages>
           <div class="slds-grid slds-gutters">
             <div class="slds-col">
@@ -62,7 +62,7 @@
       <template if:true={sessions}>
         <!-- apresenta a(s) sessão(sessões) criadas -->
         <template for:each={sessions} for:item="session">
-          <div key={session.sessionId} class="slds-border_bottom slds-var-p-around_medium">
+          <div class="slds-border_bottom slds-var-p-around_medium" key={session.sessionId}>
             <lightning-record-view-form object-api-name={sessionObject} record-id={session.sessionId}>
               <lightning-messages> </lightning-messages>
 
@@ -77,15 +77,14 @@
                   <lightning-output-field field-name="Session_Price__c"></lightning-output-field>
                   <lightning-output-field field-name="End_Time__c"></lightning-output-field>
                   <lightning-output-field field-name="Venue__c"></lightning-output-field>
-                  <lightning-input type="checkbox" name="clonecheck" label="Clone this session?" checked>
-                    <!--onclick={}-->
+                  <lightning-input type="checkbox" name="clonecheck" label="Clone this session?" onchange={handleCheckboxChange} data-session={session.sessionId}>
                   </lightning-input>
                 </div>
               </div>
             </lightning-record-view-form>
             <template for:each={session.sessionVenuesId} for:item="session_venueId">
               <div key={session_venueId} class="slds-border_bottom slds-var-p-around_medium">
-                <lightning-record-edit-form object-api-name={sessionVenueObject} record-id={session_venueId}>
+                <lightning-record-edit-form object-api-name={sessionVenueObject} record-id={session_venueId} onsubmit={showLoading} onsuccess={successfulUpdate} onerror={errorDefaultMessage}>
                   <lightning-messages></lightning-messages>
                   <div class="slds-grid slds-gutters">
                     <div class="slds-col">
@@ -127,8 +126,8 @@
                   <p>Selected value is: {peridiocityValue}</p>
               </div>
               <div class="slds-modal__footer">
-                <button class="slds-button" aria-label="Cancel and close" onclick={toggleModal}>Cancel</button>
-                <button class="slds-button slds-button_brand">Save</button>
+                <button class="slds-button" aria-label="Cancel and close" onclick={toggleCloningModal}>Cancel</button>
+                <button class="slds-button slds-button_brand" onclick={cloneSessions}>Save</button>
               </div>
             </div>
           </section>

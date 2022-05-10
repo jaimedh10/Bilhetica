@@ -21,7 +21,6 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
         }
     }
     
-    // Método de atualização do status da sessão com base na comparação entre a capacidade do espaço e o número de bilhetes vendidos
     private static void checkMaxCapacity(List<Session__c> sessionList) {
 
         try {
@@ -32,6 +31,7 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
                     continue;
                 }
                 s.Status__c = 'Sold Out';
+            
             }
         } catch (Exception e) {
             System.debug('Erro no update ' + e.getMessage() + ' na linha ' + e.getLineNumber());

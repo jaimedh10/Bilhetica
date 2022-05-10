@@ -6,6 +6,7 @@ import SESSION_VENUE_OBJECT from "@salesforce/schema/Session_Venue__c";
 import NAME_FIELD from "@salesforce/schema/Session__c.Name";
 import findVenues from "@salesforce/apex/SessionWizardController.findVenues";
 import createSessionVenues from "@salesforce/apex/SessionWizardController.createSessionVenues";
+import cloneSessionsAndSessionVenues from "@salesforce/apex/SessionWizardController.cloneSessionsAndSessionVenues";
 /**
  * Creates Session records.
  */
@@ -21,41 +22,73 @@ export default class SessionWizard extends LightningElement {
   venueSelected;
   venueListEmpty;
   showSessionsSaved = false;
-  showCloningModal = true;
+  showCloningModal = false;
   // Listas
   sessions = undefined;
   sessionVenues = undefined;
   venues;
+  sessionsToClone = [];
   // Ids
   venueId;
   sessionId;
   sessionVenueId;
+  // Picklist
+  peridiocityValue;
+  peridiocityOptions = [
+    { label: "Daily", value: "Daily" },
+    { label: "Weekly", value: "Weekly" },
+    { label: "Monthly", value: "Monthly" },
+    { label: "Annualy", value: "Annualy" }
+  ];
 
   queryTerm = "";
   error;
-  peridiocityValue;
-  peridiocityOptions = [ 
-    {label: 'Daily', value: 'Daily' }, 
-    {label: 'Weekly', value: 'Weekly' },
-    {label: 'Monthly', value: 'Monthly' },
-    {label: 'Annualy', value: 'Annualy' }
-  ];
 
 
 
   toggleCloningModal() {
-    this.showCloningModal = !this.showCloningModal;
+    if (this.sessionsToClone === undefined || this.sessionsToClone.length == 0)
+      this.dispatchToast("Warning", "There are no selected sessions", "info");
+    else this.showCloningModal = !this.showCloningModal;
   }
 
-
+  // Método para clonar sessões
   cloneSessions() {
-    if(this.peridiocityValue == null || this.peridiocityValue === undefined || this.peridiocityValue === '' ) {
-      this.dispatchToast('Warning', 'Select peridiocity to clone Sessions', 'info');
-    }
+    this.showLoading();
+    if ( this.peridiocityValue == null || this.peridiocityValue === undefined || this.peridiocityValue === "") {
+      this.dispatchToast(
+        "Warning",
+        "In order to clone Sessions, you need to choose the periodicity",
+        "info"
+      );
+    } 
     else {
-      return null;
+      cloneSessionsAndSessionVenues({sessionIdList: this.sessionsToClone, peridiocityValue: this.peridiocityValue})
+        .then((result) => {
+          console.log(result);
+          this.hideLoading();
+        })
+        .catch((error) => {
+          this.error = error;
+          console.log(error);
+          this.hideLoading();
+        });
     }
-    return null;
+  }
+
+  handleCheckboxChange(event) {
+    this.checkboxValue = event.currentTarget.checked;
+    this.sessionId = event.currentTarget.dataset.session;
+    if (this.checkboxValue == true) {
+      this.sessionsToClone.push(this.sessionId);
+    } else {
+      for (var i = 0; i < this.sessionsToClone.length; i++) {
+        if (this.sessionsToClone[i] == this.sessionId) {
+          this.sessionsToClone.splice(i, 1);
+        }
+      }
+    }
+    console.table(this.sessionsToClone);
   }
 
   handlePeridiocityChange(event) {
@@ -87,7 +120,11 @@ export default class SessionWizard extends LightningElement {
   }
 
   handleSuccess(event) {
-    this.dispatchToast("Success!", "The Session record has been successfully saved.", "success");
+    this.dispatchToast(
+      "Success!",
+      "The Session record has been successfully saved.",
+      "success"
+    );
     updateRecord({ fields: { Id: this.recordId } });
     this.sessionId = event.detail.id;
     let sessionsIdList;
@@ -142,7 +179,24 @@ export default class SessionWizard extends LightningElement {
     this.isLoading = true;
   }
 
+  successfulUpdate() {
+    this.dispatchToast(
+      "Success!",
+      "The Session Venue record has been successfully updated.",
+      "success"
+    );
+  }
+
+  errorDefaultMessage() {
+    this.dispatchToast(
+      "Error!",
+      "An unexpected error has ocurred. Please try again",
+      "error"
+    );
+  }
+
   dispatchToast(title, message, variant) {
+    this.hideLoading();
     const evt = new ShowToastEvent({
       title: title,
       message: message,
@@ -150,8 +204,6 @@ export default class SessionWizard extends LightningElement {
     });
     this.dispatchEvent(evt);
   }
-
-  
 
   /* handleSessionVenue(event) {
     updateRecord({ fields: { Id: this.recordId } });
