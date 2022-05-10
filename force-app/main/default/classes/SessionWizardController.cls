@@ -66,7 +66,7 @@ public static Boolean simpleSessionVenuesCreation(List<Session__c> sessions) {
 
   for(Session__c s : sessions) {
     List<Venue__c> sectionsList = new List<Venue__c>([SELECT Id FROM Venue__c WHERE Venue__c =:s.Venue__c AND RecordType.DeveloperName ='Venue_Section']); // Query to retrieve the Sections related list from the Venue of the Session 
-    if(sectionsList.isEmpty()) { return false; }
+    if(sectionsList.isEmpty()) { return true; }
 
     for(Venue__c venue : sectionsList) {
       Session_Venue__c sessionVenue = new Session_Venue__c();
@@ -132,7 +132,7 @@ public static Boolean cloneSessionsAndSessionVenues(List<Id> sessionIdList, Stri
 
       // Clonagem de sessões mensais
       when 'Monthly' {
-            for(Session__c s : sessions) {
+          for(Session__c s : sessions) {
             for(Date sessionDate = s.Date__c.addMonths(1); sessionDate <= endDate.get(0).Finish_Date__c; sessionDate = sessionDate.addMonths(1)) {
               Session__c newSession = s.clone(false, true, false, false);
               newSession.Date__c = sessionDate;
@@ -144,31 +144,36 @@ public static Boolean cloneSessionsAndSessionVenues(List<Id> sessionIdList, Stri
 
       // Clonagem de sessões anuais
       when 'Annualy' {
-        for(Session__c s : sessions) {
-          for(Date sessionDate = s.Date__c.addYears(1); sessionDate <= endDate.get(0).Finish_Date__c; sessionDate = sessionDate.addYears(1)) {
-            Session__c newSession = s.clone(false, true, false, false);
-            newSession.Date__c = sessionDate;
-            System.debug(LoggingLevel.INFO, sessionDate);
-            newSessions.add(newSession);
+          for(Session__c s : sessions) {
+            for(Date sessionDate = s.Date__c.addYears(1); sessionDate <= endDate.get(0).Finish_Date__c; sessionDate = sessionDate.addYears(1)) {
+              Session__c newSession = s.clone(false, true, false, false);
+              newSession.Date__c = sessionDate;
+              System.debug(LoggingLevel.INFO, sessionDate);
+              newSessions.add(newSession);
+            }
           }
-        }
       }
       
       when else {
-        System.debug(LoggingLevel.INFO, 'else condition');
-        return false;
+          System.debug(LoggingLevel.INFO, 'else condition');
+          return false;
       }
     }
     try {
+      if(newSessions.isEmpty()) {
+        return false; 
+      }
       insert newSessions;
+      // Criação de sessionVenues
+      Boolean result = simpleSessionVenuesCreation(newSessions);
+      System.debug(LoggingLevel.INFO, result);
+      return result; 
     }
     catch(Exception e) {
       System.debug(e.getMessage());
+      return false;
     }
-    // Criação de sessionVenues
-    Boolean result = simpleSessionVenuesCreation(newSessions);
-    System.debug(LoggingLevel.INFO, result);
-    return result; 
+    
 }
 
 public SessionWizardController() {
