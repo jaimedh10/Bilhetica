@@ -1,7 +1,8 @@
 public with sharing class SessionWizardController {
 
 @AuraEnabled(cacheable=true) // To call an Apex method imperatively, you can choose to set cacheable=true
-public static List<Venue__c> findVenues(String queryTerm, Id recordId) {
+public static List<Venue__c> findVenues(String queryTerm) {
+  // Id recordId
   try {
     String key = '%' + queryTerm + '%';
     return [SELECT Id, Name FROM Venue__c WHERE Name LIKE :key AND Active__c = True AND RecordType.DeveloperName ='Venue'];
@@ -95,74 +96,66 @@ public static Boolean cloneSessionsAndSessionVenues(List<Id> sessionIdList, Stri
     }
 
     List<Session__c> sessions = [SELECT Id, Date__c, Session__c, Start_Time__c, End_Time__c, Venue__c, Session_Price__c FROM Session__c WHERE Id IN :sessionIdList];
-    //List<Session_Venue__c> sessionVenues = [SELECT Id FROM Session_Venue__c WHERE Session__c IN :sessionIdList];
-    //List<Session_Venue__c> newSessionVenues = new List<Session_Venue__c>();
+    List<Event__c> endDate = [SELECT Finish_Date__c FROM Event__c WHERE Id = :sessions.get(0).Session__c];
+    System.debug(LoggingLevel.INFO, endDate);
     List<Session__c> newSessions = new List<Session__c>();
     Session ses;
+    //Date endDate = sessions.get(0).Session__r.Finish_Date__c;
+    //List<Session_Venue__c> sessionVenues = [SELECT Id FROM Session_Venue__c WHERE Session__c IN :sessionIdList];
+    //List<Session_Venue__c> newSessionVenues = new List<Session_Venue__c>();
+
 
     switch on peridiocityValue {
+      // Clonagem de sessões diárias
       when 'Daily' {
-          // Clonagem de sessões diárias
           for(Session__c s : sessions) {
-            for(Integer NumberOfDaysToAdd = 1; NumberOfDaysToAdd < 365; NumberOfDaysToAdd++) {
-              Session__c newSession = new Session__c();
-              newSession.Date__c = (s.Date__c.addDays(NumberOfDaysToAdd));
-              newSession.Session_Price__c = s.Session_Price__c;
-              newSession.Start_Time__c = s.Start_Time__c;
-              newSession.End_Time__c = s.End_Time__c;
-              newSession.Session__c = s.Session__c;
-              newSession.Venue__c = s.Venue__c;
-              newSessions.add(newSession);
-            }
-          }
-      }
-
-      when 'Weekly' {
-          //stopDate = [SELECT Date__c FROM Session__c WHERE Id IN :sessionIdList];
-          // Clonagem de sessões semanais
-          for(Session__c s : sessions) {
-            for(Integer NumberOfWeeksToAdd = 0; NumberOfWeeksToAdd < 52; NumberOfWeeksToAdd++) {
-              Session__c newSession = new Session__c();
-              newSession.Date__c = (s.Date__c.addDays(7*NumberOfWeeksToAdd));
-              newSession.Session_Price__c = s.Session_Price__c;
-              newSession.Start_Time__c = s.Start_Time__c;
-              newSession.End_Time__c = s.End_Time__c;
-              newSession.Session__c = s.Session__c;
-              newSession.Venue__c = s.Venue__c;
-              newSessions.add(newSession);
-            }
-          }
-      }
-
-      when 'Monthly' {
-          // Clonagem de sessões mensais
-          for(Session__c s : sessions) {
-            for(Integer NumberOfMonthsToAdd = 0; NumberOfMonthsToAdd < 12; NumberOfMonthsToAdd++) {
-              Session__c newSession = new Session__c();
-              newSession.Date__c = (s.Date__c.addMonths(NumberOfMonthsToAdd));
-              newSession.Session_Price__c = s.Session_Price__c;
-              newSession.Start_Time__c = s.Start_Time__c;
-              newSession.End_Time__c = s.End_Time__c;
-              newSession.Session__c = s.Session__c;
-              newSession.Venue__c = s.Venue__c;
-              newSessions.add(newSession);
-            }
-          }
-      }
-
-      when 'Annualy' {
-          // Clonagem de sessões anuais
-          for(Session__c s : sessions) {
-            for(Integer NumberOfYearsToAdd = 1; NumberOfYearsToAdd < 2; NumberOfYearsToAdd++) {
+            for(Date sessionDate = s.Date__c.addDays(1); sessionDate <= endDate.get(0).Finish_Date__c; sessionDate = sessionDate.addDays(1)) {
               Session__c newSession = s.clone(false, true, false, false);
-              newSession.Date__c = (s.Date__c.addYears(NumberOfYearsToAdd));
+              newSession.Date__c = sessionDate;
+              System.debug(LoggingLevel.INFO, sessionDate);
+              newSessions.add(newSession);
+            }
+          } 
+      }
+
+      // Clonagem de sessões semanais
+      when 'Weekly' {
+          for(Session__c s : sessions) {
+            for(Date sessionDate = s.Date__c.addDays(7); sessionDate <= endDate.get(0).Finish_Date__c; sessionDate = sessionDate.addDays(7)) {
+              Session__c newSession = s.clone(false, true, false, false);
+              newSession.Date__c = sessionDate;
+              System.debug(LoggingLevel.INFO, sessionDate);
               newSessions.add(newSession);
             }
           }
+      }
+
+      // Clonagem de sessões mensais
+      when 'Monthly' {
+            for(Session__c s : sessions) {
+            for(Date sessionDate = s.Date__c.addMonths(1); sessionDate <= endDate.get(0).Finish_Date__c; sessionDate = sessionDate.addMonths(1)) {
+              Session__c newSession = s.clone(false, true, false, false);
+              newSession.Date__c = sessionDate;
+              System.debug(LoggingLevel.INFO, sessionDate);
+              newSessions.add(newSession);
+            }
+          }
+      }
+
+      // Clonagem de sessões anuais
+      when 'Annualy' {
+        for(Session__c s : sessions) {
+          for(Date sessionDate = s.Date__c.addYears(1); sessionDate <= endDate.get(0).Finish_Date__c; sessionDate = sessionDate.addYears(1)) {
+            Session__c newSession = s.clone(false, true, false, false);
+            newSession.Date__c = sessionDate;
+            System.debug(LoggingLevel.INFO, sessionDate);
+            newSessions.add(newSession);
+          }
+        }
       }
       
       when else {
-        System.debug(LoggingLevel.INFO, 'chegou ao switch');
+        System.debug(LoggingLevel.INFO, 'else condition');
         return false;
       }
     }
