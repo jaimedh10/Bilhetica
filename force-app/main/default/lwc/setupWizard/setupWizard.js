@@ -1,131 +1,74 @@
 import { LightningElement } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
-import VENUE_OBJECT from "@salesforce/schema/Venue__c";
-import ROW_OBJECT from "@salesforce/schema/Row__c";
-import createSections from "@salesforce/apex/SetupWizardController.createSections";
-import createRows from "@salesforce/apex/SetupWizardController.createRows";
+import DISCOUNT_OBJECT from "@salesforce/schema/Discount__c";
+import CATEGORY_OBJECT from "@salesforce/schema/Category__c";
 
 export default class SetupWizard extends LightningElement {
-  venueObject = VENUE_OBJECT;
-  rowObject = ROW_OBJECT;
-  venueId;
-  sectionId;
-
-  numberOfSections = 0;
-  numberOfRows = 0;
-
-  // Boolean p/ mostrar determinado template
-  isLoading = false;
-  showSectionForm = false;
-  showSectionButton = false;
-  showSectionInput = false;
-  showRows = false;
-  test = true;
-
-  // Listas
-  venuesIdsList;
-  sections = undefined;
-  rows = undefined;
-
+  discountObject = DISCOUNT_OBJECT;
+  categoryObject = CATEGORY_OBJECT;
+  showVenueForm = false;
+  showDiscountForm = false;
+  showSetupForm = true;
+  showCategoriesForm = false;
   
 
 
-  
 
-  handleSuccess(event) {
-    this.successfulInsert();
-    this.venueId = event.detail.id;
-    //this.venuesIdsList.push(this.venueId);
-    this.showSectionButton = true;
-    //updateRecord({ fields: { Id: this.recordId } }); não está a fazer o efeito pretendido
+  handleVenueForm() {
+    this.showVenueForm = true;
+    this.showDiscountForm = false;
+    this.showSetupForm = false;
+    this.showCategoriesForm = false;
   }
 
-  handleSectionForm() {
-    if (this.numberOfSections > 0) {
-      createSections({
-        numberOfSections: this.numberOfSections,
-        venueId: this.venueId
-      })
-        .then((result) => {
-          this.sections = result;
-          if (this.sections.length > 0) 
-            console.log(result);
-            this.showSectionForm = true;
-        })
-        .catch((error) => {
-          this.error = error;
-          console.log(error);
-        });
-    }
+  handleDiscountForm() {
+    this.showDiscountForm = true;
+    this.showVenueForm = false;
+    this.showSetupForm = false;
+    this.showCategoriesForm = false;
   }
 
-  handleRowsForm(event) {
-    this.sectionId = event.currentTarget.dataset.section;
-    if (this.numberOfRows > 0) {
-      createRows({
-        numberOfRows: this.numberOfRows,
-        sectionId: this.sectionId
-      })
-        .then((result) => {
-          this.rows = result;
-          if (this.rows.length > 0) {
-            console.log(result);
-            this.showRows = true;
-          }
-            
-        })
-        .catch((error) => {
-          this.error = error;
-          console.log(error);
-        });
-    }
-    
+  handleCategoriesForm() {
+    this.showCategoriesForm = true;
+    this.showVenueForm = false;
+    this.showDiscountForm = false;
+    this.showSetupForm = false;
   }
 
-  handleRowUpdate() {
-    this.showLoading();
+  handleDiscountSuccess() {
     this.dispatchToast(
       "Success!",
-      "The Section record has been successfully updated.",
+      "The Discount has been successfully saved.",
       "success"
     );
+    this.showDiscountForm = false;
+    this.showSetupForm = true;
+    //this.venueId = event.detail.id;
   }
 
-  handleSectionUpdate() {
-    this.showLoading();
+  handleCategorySuccess() {
     this.dispatchToast(
       "Success!",
-      "The Section record has been successfully updated.",
+      "The Category has been successfully saved",
       "success"
     );
+    this.showCategoriesForm = false;
+    this.showSetupForm = true;
   }
 
-  handleNumberOfSections(event) {
-    this.numberOfSections = event.detail.value;
+  hideVenueForm() {
+    this.showVenueForm = false;
+    this.showSetupForm = true;
   }
 
-  handleNumberOfRows(event) {
-    this.numberOfRows = event.detail.value;
+  hideDiscountForm() {
+    this.showDiscountForm = false;
+    this.showSetupForm = true;
   }
 
-  handleSectionInput() {
-    this.showSectionInput = true;
-  }
-
-  successfulInsert() {
-    this.dispatchToast(
-      "Success!",
-      "The Venue record has been successfully saved.",
-      "success"
-    );
-  }
-
-  errorDefaultMessage() {
-    this.dispatchToast(
-      "Error!",
-      "An unexpected error has ocurred. Please try again",
-      "error"
-    );
+  hideCategoriesForm() {
+    this.showCategoriesForm = false;
+    this.showSetupForm = true;
   }
 
   dispatchToast(title, message, variant) {

@@ -113,6 +113,7 @@ public static Boolean cloneSessionsAndSessionVenues(List<Id> sessionIdList, Stri
               Session__c newSession = s.clone(false, true, false, false);
               newSession.Date__c = sessionDate;
               System.debug(LoggingLevel.INFO, sessionDate);
+              System.debug(LoggingLevel.INFO, endDate.get(0).Finish_Date__c);
               newSessions.add(newSession);
             }
           } 
@@ -132,7 +133,7 @@ public static Boolean cloneSessionsAndSessionVenues(List<Id> sessionIdList, Stri
 
       // Clonagem de sessões mensais
       when 'Monthly' {
-          for(Session__c s : sessions) {
+            for(Session__c s : sessions) {
             for(Date sessionDate = s.Date__c.addMonths(1); sessionDate <= endDate.get(0).Finish_Date__c; sessionDate = sessionDate.addMonths(1)) {
               Session__c newSession = s.clone(false, true, false, false);
               newSession.Date__c = sessionDate;
@@ -144,19 +145,19 @@ public static Boolean cloneSessionsAndSessionVenues(List<Id> sessionIdList, Stri
 
       // Clonagem de sessões anuais
       when 'Annualy' {
-          for(Session__c s : sessions) {
-            for(Date sessionDate = s.Date__c.addYears(1); sessionDate <= endDate.get(0).Finish_Date__c; sessionDate = sessionDate.addYears(1)) {
-              Session__c newSession = s.clone(false, true, false, false);
-              newSession.Date__c = sessionDate;
-              System.debug(LoggingLevel.INFO, sessionDate);
-              newSessions.add(newSession);
-            }
+        for(Session__c s : sessions) {
+          for(Date sessionDate = s.Date__c.addYears(1); sessionDate <= endDate.get(0).Finish_Date__c; sessionDate = sessionDate.addYears(1)) {
+            Session__c newSession = s.clone(false, true, false, false);
+            newSession.Date__c = sessionDate;
+            System.debug(LoggingLevel.INFO, sessionDate);
+            newSessions.add(newSession);
           }
+        }
       }
       
       when else {
-          System.debug(LoggingLevel.INFO, 'else condition');
-          return false;
+        System.debug(LoggingLevel.INFO, 'else condition');
+        return false;
       }
     }
     try {

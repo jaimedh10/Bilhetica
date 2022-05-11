@@ -1,99 +1,6 @@
+<!-- Setup Assistant-->
 <template>
-    <lightning-card title="Venue" icon-name="custom:custom4">
-        <div class="slds-is-relative">
-            <lightning-record-edit-form object-api-name={venueObject} onsuccess={handleSuccess} onload={hideLoading}
-                onsubmit={showLoading} onerror={errorDefaultMessage}>
-                <lightning-messages> </lightning-messages>
-                <div class="slds-grid slds-gutters">
-                    <div class="slds-col">
-                        <lightning-input-field field-name="Name"></lightning-input-field>
-                        <lightning-input-field field-name="Venue_Opening__c"></lightning-input-field>
-                        <lightning-input-field field-name="Venue_Location__c"></lightning-input-field>
-                    </div>
-                    <div class="slds-col">
-                        <lightning-input-field field-name="Capacity__c"></lightning-input-field>
-                        <lightning-input-field field-name="Venue_Closing_Time__c"></lightning-input-field>
-                        <lightning-input-field field-name="Type__c"></lightning-input-field>
-                    </div>
-                </div>
-                <div class="slds-var-m-top_medium">
-                    <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
-                </div>
-            </lightning-record-edit-form>
-
-            <template if:true={showSectionButton}>
-                <div class="slds-var-m-top_medium">
-                    <lightning-button label="Add Section" onclick={handleSectionInput}></lightning-button>
-                </div>
-                <template if:true={showSectionInput}>
-                    <lightning-input type="number" name="numberOfSections" value={numberOfSections}
-                        onchange={handleNumberOfSections} placeholder="Enter the number of Sections"
-                        label="How many sections?" max="99" required>
-                    </lightning-input>
-                    <lightning-button variant="neutral" label="Next" onclick={handleSectionForm}></lightning-button>
-                    <template if:true={showSectionForm}>
-                        <template for:each={sections} for:item="section">
-                            <div class="slds-border_bottom slds-var-p-around_medium" key={section.Id}>
-                                <!-- dúvida aqui -->
-                                <lightning-record-edit-form object-api-name={venueObject} record-id={section.Id}
-                                    record-type-id={section.RecordTypeId} onload={hideLoading}
-                                    onsubmit={handleSectionUpdate} onerror={errorDefaultMessage}>
-                                    <lightning-messages> </lightning-messages>
-                                    <div class="slds-grid slds-gutters">
-                                        <div class="slds-col">
-                                            <lightning-input-field field-name="Name"></lightning-input-field>
-                                            <lightning-button variant="brand" type="submit" label="Update Section">
-                                            </lightning-button>
-                                        </div>
-                                        <div class="slds-col">
-                                            <lightning-input-field field-name="Capacity__c"></lightning-input-field>
-                                            <lightning-input-field field-name="Venue__c"></lightning-input-field>
-                                        </div>
-                                    </div>
-                                </lightning-record-edit-form>
-                                <lightning-input type="number" name="numberOfRows" value={numberOfRows}
-                                    onchange={handleNumberOfRows} placeholder="Enter the number of rows for the section"
-                                    label="How many rows?" max="99" required>
-                                </lightning-input>
-                                <lightning-button variant="neutral" label="Next" onclick={handleRowsForm}
-                                    data-section={section.Id}>
-                                </lightning-button>
-                                <template if:true={showRows}>
-                                    <template for:each={rows} for:item="row">
-                                        <div class="slds-border_bottom slds-var-p-around_medium" key={row.Id}>
-                                            <lightning-record-edit-form object-api-name={rowObject} record-id={row.Id}
-                                                onload={hideLoading} onsubmit={handleRowUpdate}
-                                                onerror={errorDefaultMessage}>
-                                                <lightning-messages> </lightning-messages>
-                                                <div class="slds-grid slds-gutters">
-                                                    <div class="slds-col">
-                                                        <lightning-input-field field-name="Name">
-                                                        </lightning-input-field>
-                                                        <lightning-button variant="brand" type="submit"
-                                                            label="Update Row">
-                                                        </lightning-button>
-                                                    </div>
-                                                    <div class="slds-col">
-                                                        <lightning-input-field field-name="Number_of_seats__c">
-                                                        </lightning-input-field>
-                                                        <lightning-input-field field-name="Venue__c">
-                                                        </lightning-input-field>
-                                                    </div>
-                                                </div>
-                                            </lightning-record-edit-form>
-                                        </div>
-                                    </template>
-                                </template>
-                            </div>
-
-
-                        </template>
-                    </template>
-                </template>
-            </template>
-        </div>
-    </lightning-card>
-    <template if:true={test}>
+    <template if:true={showSetupForm}>
         <lightning-card>
             <div class="slds-is-relative">
                 <ol class="slds-setup-assistant">
@@ -102,26 +9,16 @@
                             <div class="slds-setup-assistant__step-summary">
                                 <div class="slds-media">
                                     <div class="slds-media__figure">
-                                        <div
-                                            class="slds-progress-ring slds-progress-ring_complete slds-progress-ring_large">
+                                        <div class="slds-progress-ring slds-progress-ring_large">
                                             <div class="slds-progress-ring__progress" role="progressbar"
-                                                aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+                                                aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                                                 <svg viewBox="-1 -1 2 2">
-                                                    <circle class="slds-progress-ring__path"
-                                                        id="slds-progress-ring-path-51" cx="0" cy="0" r="1"></circle>
+                                                    <path class="slds-progress-ring__path"
+                                                        id="slds-progress-ring-path-1"
+                                                        d="M 1 0 A 1 1 0 0 0 1.00 -0.00 L 0 0"></path>
                                                 </svg>
                                             </div>
-                                            <div class="slds-progress-ring__content">
-                                                <span class="slds-icon_container slds-icon-utility-check"
-                                                    title="Complete">
-                                                    <svg class="slds-icon" aria-hidden="true">
-                                                        <use
-                                                            xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#check">
-                                                        </use>
-                                                    </svg>
-                                                    <span class="slds-assistive-text">Complete</span>
-                                                </span>
-                                            </div>
+                                            <div class="slds-progress-ring__content">1</div>
                                         </div>
                                     </div>
                                     <div class="slds-media__body slds-m-top_x-small">
@@ -129,19 +26,16 @@
                                             <div class="slds-setup-assistant__step-summary-content slds-media__body">
                                                 <h3
                                                     class="slds-setup-assistant__step-summary-title slds-text-heading_small">
-                                                    Create Venues</h3>
-                                                <p>Insert the details about your venues and other related information
-                                                    like
-                                                    the
-                                                    sections and rows.
+                                                    Create Venue</h3>
+                                                <p>Insert the details about your venue and other related information
+                                                    like the sections and rows.
                                                 </p>
                                             </div>
                                             <div class="slds-media__figure slds-media__figure_reverse">
-                                                <button class="slds-button slds-button_outline-brand">Create
-                                                    Venues</button>
+                                                <button class="slds-button slds-button_outline-brand"
+                                                    onclick={handleVenueForm}>Create Venue</button>
                                                 <p class="slds-text-align_right slds-text-color_weak slds-p-top_medium">
-                                                    15
-                                                    mins
+                                                    15 mins
                                                 </p>
                                             </div>
                                         </div>
@@ -160,7 +54,7 @@
                                                 aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                                                 <svg viewBox="-1 -1 2 2">
                                                     <path class="slds-progress-ring__path"
-                                                        id="slds-progress-ring-path-52"
+                                                        id="slds-progress-ring-path-2"
                                                         d="M 1 0 A 1 1 0 0 0 1.00 -0.00 L 0 0"></path>
                                                 </svg>
                                             </div>
@@ -177,8 +71,10 @@
                                                 </p>
                                             </div>
                                             <div class="slds-media__figure slds-media__figure_reverse">
-                                                <button class="slds-button slds-button_outline-brand">Create Discounts</button>
-                                                <p class="slds-text-align_right slds-text-color_weak slds-p-top_medium">5 mins</p>
+                                                <button class="slds-button slds-button_outline-brand"
+                                                    onclick={handleDiscountForm}>Create Discounts</button>
+                                                <p class="slds-text-align_right slds-text-color_weak slds-p-top_medium">
+                                                    5 mins</p>
                                             </div>
                                         </div>
                                     </div>
@@ -186,52 +82,107 @@
                             </div>
                         </article>
                     </li>
-
-                    <!-- <li class="slds-setup-assistant__item">
-                <article class="slds-setup-assistant__step">
-                    <div class="slds-setup-assistant__step-summary">
-                        <div class="slds-media">
-                            <div class="slds-media__figure">
-                                <div class="slds-progress-ring slds-progress-ring_complete slds-progress-ring_large">
-                                    <div class="slds-progress-ring__progress" role="progressbar" aria-valuemin="0"
-                                        aria-valuemax="100" aria-valuenow="100">
-                                        <svg viewBox="-1 -1 2 2">
-                                            <circle class="slds-progress-ring__path" id="slds-progress-ring-path-53" cx="0"
-                                                cy="0" r="1"></circle>
-                                        </svg>
-                                    </div>
-                                    <div class="slds-progress-ring__content">
-                                        <span class="slds-icon_container slds-icon-utility-check" title="Complete">
-                                            <svg class="slds-icon" aria-hidden="true">
-                                                <use xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#check">
-                                                </use>
-                                            </svg>
-                                            <span class="slds-assistive-text">Complete</span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="slds-media__body slds-m-top_x-small">
+                    <li class="slds-setup-assistant__item">
+                        <article class="slds-setup-assistant__step">
+                            <div class="slds-setup-assistant__step-summary">
                                 <div class="slds-media">
-                                    <div class="slds-setup-assistant__step-summary-content slds-media__body">
-                                        <h3 class="slds-setup-assistant__step-summary-title slds-text-heading_small">
-                                            Create Categories</h3>
-                                        <p>Create Categories to group your future events by type.
-                                        </p>
+                                    <div class="slds-media__figure">
+                                        <div class="slds-progress-ring slds-progress-ring_large">
+                                            <div class="slds-progress-ring__progress" role="progressbar" aria-valuemin="0"
+                                                aria-valuemax="100" aria-valuenow="0">
+                                                <svg viewBox="-1 -1 2 2">
+                                                    <path class="slds-progress-ring__path"
+                                                        id="slds-progress-ring-path-3"
+                                                        d="M 1 0 A 1 1 0 0 0 1.00 -0.00 L 0 0"></path>
+                                                </svg>
+                                            </div>
+                                            <div class="slds-progress-ring__content">3</div>
+                                        </div>
                                     </div>
-                                    <div class="slds-media__figure slds-media__figure_reverse">
-                                        <button class="slds-button slds-button_outline-brand">Create Categories</button>
-                                        <p class="slds-text-align_right slds-text-color_weak slds-p-top_medium">15 mins
-                                        </p>
+                                    <div class="slds-media__body slds-var-m-top_x-small">
+                                        <div class="slds-media">
+                                            <div class="slds-setup-assistant__step-summary-content slds-media__body">
+                                                <h3 class="slds-setup-assistant__step-summary-title slds-text-heading_small">
+                                                    Create Categories</h3>
+                                                <p>Create Categories to group your future events by type.
+                                                </p>
+                                            </div>
+                                            <div class="slds-media__figure slds-media__figure_reverse">
+                                                <button class="slds-button slds-button_outline-brand" onclick={handleCategoriesForm}>Create Categories</button>
+                                                <p class="slds-text-align_right slds-text-color_weak slds-p-top_medium">5 mins
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </article>
-            </li> -->
+                        </article>
+                    </li>
                 </ol>
             </div>
         </lightning-card>
     </template>
+
+    <template if:true={showVenueForm}>
+        <lightning-card title="Venue" icon-name="custom:custom4">
+            <div class="slds-is-relative">
+                <c-venue-wizard></c-venue-wizard>
+                <!-- record-id={} -->
+                <lightning-button variant="success" label="Finish" onclick={hideVenueForm} class="slds-m-left_x-small">
+                </lightning-button>
+            </div>
+        </lightning-card>
+    </template>
+
+    <template if:true={showDiscountForm}>
+        <lightning-card title="Discount" icon-name="custom:custom17">
+            <div class="slds-is-relative">
+                <lightning-record-edit-form object-api-name={discountObject} onsuccess={handleDiscountSuccess}
+                    onload={hideLoading} onsubmit={showLoading} onerror={errorDefaultMessage}>
+                    <lightning-messages> </lightning-messages>
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col">
+                            <lightning-input-field required field-name="Name"></lightning-input-field>
+                            <lightning-input-field field-name="Description__c"></lightning-input-field>
+                        </div>
+                        <div class="slds-col">
+                            <lightning-input-field field-name="Type__c"></lightning-input-field>
+                            <lightning-input-field field-name="Value__c"></lightning-input-field>
+                        </div>
+                    </div>
+                    <div class="slds-var-m-top_medium">
+                        <lightning-button variant="brand" type="submit" label="Save" class="slds-m-left_x-small"></lightning-button>
+                        <lightning-button variant="neutral" label="Back" onclick={hideDiscountForm} class="slds-m-left_x-small"></lightning-button>
+                    </div>
+                </lightning-record-edit-form>
+            </div>
+        </lightning-card>
+    </template>
+
+    <template if:true={showCategoriesForm}>
+        <lightning-card title="Event Category" icon-name="custom:custom11">
+            <div class="slds-is-relative">
+                <lightning-record-edit-form object-api-name={categoryObject} onsuccess={handleCategorySuccess}
+                    onload={hideLoading} onsubmit={showLoading} onerror={errorDefaultMessage}>
+                    <lightning-messages> </lightning-messages>
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col">
+                            <lightning-input-field required field-name="Name"></lightning-input-field>
+                            <lightning-input-field field-name="Description__c"></lightning-input-field>
+                        </div>
+                        <div class="slds-col">
+                            <lightning-input-field field-name="Event__c"></lightning-input-field>
+                            <lightning-input-field field-name="Image__c"></lightning-input-field>
+                        </div>
+                    </div>
+                    <div class="slds-var-m-top_medium">
+                        <lightning-button variant="brand" type="submit" label="Save" class="slds-m-left_x-small"></lightning-button>
+                        <lightning-button variant="neutral" label="Back" onclick={hideCategoriesForm} class="slds-m-left_x-small"></lightning-button>
+                    </div>
+                </lightning-record-edit-form>
+            </div>
+        </lightning-card>
+    </template>
 </template>
+
+<!--  -->

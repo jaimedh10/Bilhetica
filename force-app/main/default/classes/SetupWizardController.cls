@@ -55,6 +55,16 @@ public with sharing class SetupWizardController {
         }
     }
 
+    /* @AuraEnabled
+    public static boolean createDiscount(){
+        try {
+            return true;
+        } catch (Exception e) {
+            System.debug(e.getMessage());
+            return false;
+        }
+    } */
+
     public SetupWizardController() {
     }
 }
