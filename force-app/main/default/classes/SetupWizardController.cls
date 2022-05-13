@@ -1,7 +1,7 @@
 public with sharing class SetupWizardController {
 
     @AuraEnabled
-    public static List<Venue__c> createSections(Integer numberOfSections, Id venueId) {
+    public static List<Venue__c> createSections(Integer numberOfSections, String venueId) {
         if(String.isBlank(venueId))
             return null;
         
@@ -30,7 +30,7 @@ public with sharing class SetupWizardController {
     }
 
     @AuraEnabled
-    public static List<Row__c> createRows(Integer numberOfRows, Id sectionId){
+    public static List<Row__c> createRows(Integer numberOfRows, String sectionId){
         if(String.isBlank(sectionId))
             return null;
         
@@ -64,7 +64,4 @@ public with sharing class SetupWizardController {
             return false;
         }
     } */
-
-    public SetupWizardController() {
-    }
 }
