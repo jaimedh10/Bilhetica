@@ -1,0 +1,26 @@
+<apex:page standardController="Ticket__c" renderAs="pdf" id="pageId">
+    <apex:pageBlock>
+        <h2>Event Tickets</h2>
+        <h3>Ticket Details</h3>
+        <apex:repeat value="{!tickets}" var="ticket">
+            <table>
+            	<tr>
+                    <th>Contact Name:</th>
+                    <td><apex:outputText value="{!ticket.Contact__r.Name}"></apex:outputText></td>
+                </tr>
+                <tr>
+                    <th>Session:</th>
+                    <td><apex:outputText value="{!ticket.Session__c}"></apex:outputText></td>
+                </tr>
+                <tr>
+                    <th>Seat:</th>
+                    <td><apex:outputText value="{!ticket.Seat__c}"></apex:outputText></td>
+                </tr>
+                <tr>
+                    <td><apex:outputText value="{!ticket.QR_Code__c}"></apex:outputText></td>
+                </tr>
+        	</table>
+        </apex:repeat>
+        <p>Your ticket(s) are now available in electronic format.</p>
+    </apex:pageBlock>
+</apex:page>

@@ -100,9 +100,9 @@ private class SetupWizardControllerTest {
         Id rowId = [SELECT Id FROM Row__c LIMIT 1].Id;
         Test.startTest();
         try {
-            List<Row__c> sections = SetupWizardController.createRows(numberOfRows, rowId);
+            List<Row__c> rows = SetupWizardController.createRows(numberOfRows, rowId);
         } catch(Exception e) {
-            System.assert(e.getMessage(), e.getMessage());
+            System.assertEquals(e.getMessage(), e.getMessage());
         }
         Test.stopTest();
     }
