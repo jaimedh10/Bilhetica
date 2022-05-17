@@ -9,23 +9,13 @@
                             <div class="slds-setup-assistant__step-summary">
                                 <div class="slds-media">
                                     <div class="slds-media__figure">
-                                        <div class="slds-progress-ring slds-progress-ring_large">
-                                            <div class="slds-progress-ring__progress" role="progressbar"
-                                                aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                                                <svg viewBox="-1 -1 2 2">
-                                                    <path class="slds-progress-ring__path"
-                                                        id="slds-progress-ring-path-1"
-                                                        d="M 1 0 A 1 1 0 0 0 1.00 -0.00 L 0 0"></path>
-                                                </svg>
-                                            </div>
-                                            <div class="slds-progress-ring__content">1</div>
-                                        </div>
+                                        <lightning-progress-ring value={venueProgressRing} variant="base-autocomplete">
+                                        </lightning-progress-ring>
                                     </div>
                                     <div class="slds-media__body slds-m-top_x-small">
                                         <div class="slds-media">
                                             <div class="slds-setup-assistant__step-summary-content slds-media__body">
-                                                <h3
-                                                    class="slds-setup-assistant__step-summary-title slds-text-heading_small">
+                                                <h3 class="slds-setup-assistant__step-summary-title slds-text-heading_small">
                                                     Create Venue</h3>
                                                 <p>Insert the details about your venue and other related information
                                                     like the sections and rows.
@@ -33,7 +23,7 @@
                                             </div>
                                             <div class="slds-media__figure slds-media__figure_reverse">
                                                 <button class="slds-button slds-button_outline-brand"
-                                                    onclick={handleVenueForm}>Create Venue</button>
+                                                    onclick={handleShortVenueForm}>Create Venue</button>
                                                 <p class="slds-text-align_right slds-text-color_weak slds-p-top_medium">
                                                     15 mins
                                                 </p>
@@ -49,19 +39,10 @@
                             <div class="slds-setup-assistant__step-summary">
                                 <div class="slds-media">
                                     <div class="slds-media__figure">
-                                        <div class="slds-progress-ring slds-progress-ring_large">
-                                            <div class="slds-progress-ring__progress" role="progressbar"
-                                                aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                                                <svg viewBox="-1 -1 2 2">
-                                                    <path class="slds-progress-ring__path"
-                                                        id="slds-progress-ring-path-2"
-                                                        d="M 1 0 A 1 1 0 0 0 1.00 -0.00 L 0 0"></path>
-                                                </svg>
-                                            </div>
-                                            <div class="slds-progress-ring__content">2</div>
-                                        </div>
+                                        <lightning-progress-ring value={discountProgressRing} variant="base-autocomplete">
+                                        </lightning-progress-ring> 
                                     </div>
-                                    <div class="slds-media__body slds-m-top_x-small">
+                                    <div class="slds-media__body slds-var-m-top_x-small">
                                         <div class="slds-media">
                                             <div class="slds-setup-assistant__step-summary-content slds-media__body">
                                                 <h3
@@ -72,7 +53,7 @@
                                             </div>
                                             <div class="slds-media__figure slds-media__figure_reverse">
                                                 <button class="slds-button slds-button_outline-brand"
-                                                    onclick={handleDiscountForm}>Create Discounts</button>
+                                                    onclick={handleShortDiscountForm}>Create Discounts</button>
                                                 <p class="slds-text-align_right slds-text-color_weak slds-p-top_medium">
                                                     5 mins</p>
                                             </div>
@@ -87,29 +68,23 @@
                             <div class="slds-setup-assistant__step-summary">
                                 <div class="slds-media">
                                     <div class="slds-media__figure">
-                                        <div class="slds-progress-ring slds-progress-ring_large">
-                                            <div class="slds-progress-ring__progress" role="progressbar" aria-valuemin="0"
-                                                aria-valuemax="100" aria-valuenow="0">
-                                                <svg viewBox="-1 -1 2 2">
-                                                    <path class="slds-progress-ring__path"
-                                                        id="slds-progress-ring-path-3"
-                                                        d="M 1 0 A 1 1 0 0 0 1.00 -0.00 L 0 0"></path>
-                                                </svg>
-                                            </div>
-                                            <div class="slds-progress-ring__content">3</div>
-                                        </div>
+                                        <lightning-progress-ring value={categoryProgressRing} variant="base-autocomplete">
+                                        </lightning-progress-ring>                                        
                                     </div>
                                     <div class="slds-media__body slds-var-m-top_x-small">
                                         <div class="slds-media">
                                             <div class="slds-setup-assistant__step-summary-content slds-media__body">
-                                                <h3 class="slds-setup-assistant__step-summary-title slds-text-heading_small">
+                                                <h3
+                                                    class="slds-setup-assistant__step-summary-title slds-text-heading_small">
                                                     Create Categories</h3>
                                                 <p>Create Categories to group your future events by type.
                                                 </p>
                                             </div>
                                             <div class="slds-media__figure slds-media__figure_reverse">
-                                                <button class="slds-button slds-button_outline-brand" onclick={handleCategoriesForm}>Create Categories</button>
-                                                <p class="slds-text-align_right slds-text-color_weak slds-p-top_medium">5 mins
+                                                <button class="slds-button slds-button_outline-brand"
+                                                    onclick={handleShortCategoriesForm}>Create Categories</button>
+                                                <p class="slds-text-align_right slds-text-color_weak slds-p-top_medium">
+                                                    5 mins
                                                 </p>
                                             </div>
                                         </div>
@@ -123,13 +98,41 @@
         </lightning-card>
     </template>
 
-    <template if:true={showVenueForm}>
+    <!-- Venue - invoca o componente -->
+    <template if:true={showShortVenueForm}>
         <lightning-card title="Venue" icon-name="custom:custom4">
             <div class="slds-is-relative">
                 <c-venue-wizard></c-venue-wizard>
                 <!-- record-id={} -->
-                <lightning-button variant="success" label="Finish" onclick={hideVenueForm} class="slds-m-left_x-small">
+                <lightning-button variant="brand" label="Done" onclick={hideShortVenueForm} class="slds-var-m-left_x-small">
                 </lightning-button>
+                <lightning-button variant="neutral" label="Back" onclick={hideShortVenueForm} class="slds-var-m-left_x-small"></lightning-button>
+            </div>
+        </lightning-card>
+    </template>
+
+
+    <!-- Desconto - formulário resumido e formulário de criação de desconto -->
+    <template if:true={showShortDiscountForm}>
+        <lightning-card title="Discount" icon-name="custom:custom17">
+            <div class="slds-is-relative">
+                <h2 class="header">Create Discounts</h2>
+                <p>Create as many discounts as you need</p>
+                <template for:each={discounts} for:item="discount">
+                    <div class="slds-box" key={discount}>
+                        <lightning-record-view-form object-api-name={discountObject} record-id={discount}>
+                            <lightning-messages> </lightning-messages>
+                            <lightning-output-field field-name="Name"></lightning-output-field>
+                        </lightning-record-view-form>
+                    </div>
+                </template>
+                <lightning-button variant="brand" label="Create Discount" onclick={handleDiscountForm}
+                    class="slds-var-m-left_x-small"></lightning-button>
+                <!-- alterar comportamento dos botões (feedback utilizador)-->
+                <lightning-button variant="neutral" label="Back" onclick={hideShortDiscountForm}
+                    class="slds-var-m-left_x-small"></lightning-button>
+                <lightning-button variant="brand" label="Done" onclick={hideShortDiscountForm}
+                    class="slds-var-m-left_x-small"></lightning-button>
             </div>
         </lightning-card>
     </template>
@@ -151,14 +154,43 @@
                         </div>
                     </div>
                     <div class="slds-var-m-top_medium">
-                        <lightning-button variant="brand" type="submit" label="Save" class="slds-m-left_x-small"></lightning-button>
-                        <lightning-button variant="neutral" label="Back" onclick={hideDiscountForm} class="slds-m-left_x-small"></lightning-button>
+                        <lightning-button variant="brand" type="submit" label="Save" class="slds-m-left_x-small">
+                        </lightning-button>
+                        <lightning-button variant="neutral" label="Back" onclick={hideDiscountForm}
+                            class="slds-m-left_x-small"></lightning-button>
                     </div>
                 </lightning-record-edit-form>
             </div>
         </lightning-card>
     </template>
 
+
+    <!-- Categoria - formulário resumido e formulário de criação de categoria -->
+    <template if:true={showShortCategoriesForm}>
+        <lightning-card title="Category" icon-name="custom:custom11">
+            <div class="slds-is-relative">
+                <h2 class="header">Create Categories</h2>
+                <p>Create as many categories as you need</p>
+                <template for:each={categories} for:item="category">
+                    <div class="slds-box" key={category}>
+                        <lightning-record-view-form object-api-name={categoryObject} record-id={category}>
+                            <lightning-messages> </lightning-messages>
+                            <lightning-output-field field-name="Name"></lightning-output-field>
+                        </lightning-record-view-form>
+                    </div>
+                </template>
+                <lightning-button variant="brand" label="Create Category" onclick={handleCategoriesForm}
+                    class="slds-var-m-left_x-small"></lightning-button>
+                <!-- alterar comportamento dos botões (feedback utilizador)-->
+                <lightning-button variant="neutral" label="Back" onclick={hideShortCategoriesForm}
+                    class="slds-var-m-left_x-small"></lightning-button>
+                <lightning-button variant="brand" label="Done" onclick={hideShortCategoriesForm}
+                    class="slds-var-m-left_x-small"></lightning-button>
+            </div>
+        </lightning-card>
+    </template>
+
+    
     <template if:true={showCategoriesForm}>
         <lightning-card title="Event Category" icon-name="custom:custom11">
             <div class="slds-is-relative">
@@ -176,13 +208,13 @@
                         </div>
                     </div>
                     <div class="slds-var-m-top_medium">
-                        <lightning-button variant="brand" type="submit" label="Save" class="slds-m-left_x-small"></lightning-button>
-                        <lightning-button variant="neutral" label="Back" onclick={hideCategoriesForm} class="slds-m-left_x-small"></lightning-button>
+                        <lightning-button variant="brand" type="submit" label="Save" class="slds-m-left_x-small">
+                        </lightning-button>
+                        <lightning-button variant="neutral" label="Back" onclick={hideCategoriesForm}
+                            class="slds-m-left_x-small"></lightning-button>
                     </div>
                 </lightning-record-edit-form>
             </div>
         </lightning-card>
     </template>
 </template>
-
-<!--  -->

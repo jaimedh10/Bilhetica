@@ -16,25 +16,30 @@ export default class VenueWizard extends LightningElement {
 
   // Boolean p/ mostrar determinado template
   isLoading = false;
+  showVenueForm = false;
+  showShortVenueForm = true;
   showSectionForm = false;
   showSectionButton = false;
   showSectionInput = false;
   showRows = false;
   disabled = false;
+  finishButton = true;
 
   // Listas
-  venuesIdsList;
+  venues = [];
   sections = undefined;
   rows = undefined;
+  rowsMap = new Map();
 
 
 
   
   handleSuccess(event) {
-    this.successfulInsert();
     this.venueId = event.detail.id;
-    //this.venuesIdsList.push(this.venueId);
+    this.venues.push(this.venueId);
+    this.successfulInsert();
     this.disabled = true;
+    this.finishButton = false;
     this.showSectionButton = true;
     //updateRecord({ fields: { Id: this.recordId } }); não está a fazer o efeito pretendido
   }
@@ -47,6 +52,10 @@ export default class VenueWizard extends LightningElement {
       })
         .then((result) => {
           this.sections = result;
+          this.sections.forEach(sect => {
+            sect.rows = [];
+            return sect; 
+          });
           if (this.sections.length > 0) console.log(result);
           this.showSectionForm = true;
         })
@@ -59,14 +68,18 @@ export default class VenueWizard extends LightningElement {
 
   handleRowsForm(event) {
     this.sectionId = event.currentTarget.dataset.section;
+    this.numberOfRows = this.rowsMap.get(this.sectionId);
+    this.showRows = false;
+
     if (this.numberOfRows > 0) {
       createRows({
         numberOfRows: this.numberOfRows,
         sectionId: this.sectionId
       })
         .then((result) => {
-          this.rows = result;
-          if (this.rows.length > 0) {
+          let sectionIndex = this.sections.findIndex((sect) => sect.Id===this.sectionId); // retorna o índice da secção para a qual criamos filas;
+          this.sections[sectionIndex].rows = result; // atribui o resultado (as filas) à secção pretendida
+          if (this.sections[sectionIndex].rows.length > 0) {
             console.log(result);
             this.showRows = true;
           }
@@ -78,22 +91,14 @@ export default class VenueWizard extends LightningElement {
     }
   }
 
-  handleRowUpdate() {
-    this.showLoading();
-    this.dispatchToast(
-      "Success!",
-      "The Section record has been successfully updated.",
-      "success"
-    );
+  handleShortVenueForm() {
+    this.showShortVenueForm = true;
+    this.showVenueForm = false;
   }
 
-  handleSectionUpdate() {
-    this.showLoading();
-    this.dispatchToast(
-      "Success!",
-      "The Section record has been successfully updated.",
-      "success"
-    );
+  handleVenueForm() {
+    this.showVenueForm = true;
+    this.showShortVenueForm = false;
   }
 
   handleNumberOfSections(event) {
@@ -102,10 +107,27 @@ export default class VenueWizard extends LightningElement {
 
   handleNumberOfRows(event) {
     this.numberOfRows = event.detail.value;
+    this.sectionId = event.currentTarget.dataset.section;
+    this.rowsMap.set(this.sectionId, this.numberOfRows);
+    console.log(this.rowsMap);
   }
 
   handleSectionInput() {
+    this.showVenueForm = false;
     this.showSectionInput = true;
+  }
+
+  hideVenueForm() {
+    this.showVenueForm = false;
+    this.showSectionForm = false;
+    this.showSectionButton = false;
+    this.showSectionInput = false;
+    this.showShortVenueForm = true;
+    this.disabled = false;
+  }
+
+  hideShortVenueForm() {
+    this.showShortVenueForm = false;
   }
 
   successfulInsert() {
@@ -121,6 +143,24 @@ export default class VenueWizard extends LightningElement {
       "Error!",
       "An unexpected error has ocurred. Please try again",
       "error"
+    );
+  }
+
+  handleRowUpdate() {
+    this.showLoading();
+    this.dispatchToast(
+      "Success!",
+      "The Row record has been successfully updated.",
+      "success"
+    );
+  }
+
+  handleSectionUpdate() {
+    this.showLoading();
+    this.dispatchToast(
+      "Success!",
+      "The Section record has been successfully updated.",
+      "success"
     );
   }
 

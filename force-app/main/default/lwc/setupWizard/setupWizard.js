@@ -6,16 +6,25 @@ import CATEGORY_OBJECT from "@salesforce/schema/Category__c";
 export default class SetupWizard extends LightningElement {
   discountObject = DISCOUNT_OBJECT;
   categoryObject = CATEGORY_OBJECT;
-  showVenueForm = false;
+  showShortVenueForm = false;
   showDiscountForm = false;
   showSetupForm = true;
   showCategoriesForm = false;
+  showShortDiscountForm = false;
+  showShortCategoriesForm = false;
+
+  categories = [];
+  discounts = [];
   
+  venueProgressRing = 0;
+  categoryProgressRing = 0;
+  discountProgressRing = 0;
 
 
 
-  handleVenueForm() {
-    this.showVenueForm = true;
+
+  handleShortVenueForm() {
+    this.showShortVenueForm = true;
     this.showDiscountForm = false;
     this.showSetupForm = false;
     this.showCategoriesForm = false;
@@ -23,50 +32,84 @@ export default class SetupWizard extends LightningElement {
 
   handleDiscountForm() {
     this.showDiscountForm = true;
-    this.showVenueForm = false;
+    this.showShortVenueForm = false;
+    this.showSetupForm = false;
+    this.showCategoriesForm = false;
+    this.showShortDiscountForm = false;
+  }
+
+  handleShortDiscountForm() {
+    this.showShortDiscountForm = true;
+    this.showShortVenueForm = false;
     this.showSetupForm = false;
     this.showCategoriesForm = false;
   }
 
   handleCategoriesForm() {
     this.showCategoriesForm = true;
-    this.showVenueForm = false;
-    this.showDiscountForm = false;
+    this.showShortCategoriesForm = false;
     this.showSetupForm = false;
   }
 
-  handleDiscountSuccess() {
+  handleShortCategoriesForm() {
+    this.showShortCategoriesForm = true;
+    this.showShortVenueForm = false;
+    this.showSetupForm = false;
+    this.showCategoriesForm = false;
+  }
+
+  handleDiscountSuccess(event) {
+    // insere o novo desconto na lista
+    this.discountId = event.detail.id;
+    this.discounts.push(this.discountId);
+    console.table(this.discounts);
+
     this.dispatchToast(
       "Success!",
       "The Discount has been successfully saved.",
       "success"
     );
-    this.showDiscountForm = false;
-    this.showSetupForm = true;
-    //this.venueId = event.detail.id;
+    this.hideDiscountForm();
+    this.discountProgressRing = 100;
   }
 
-  handleCategorySuccess() {
+  handleCategorySuccess(event) {
+    this.categoryId = event.detail.id;
+    this.categories.push(this.categoryId);
+    console.table(this.categories);
     this.dispatchToast(
       "Success!",
       "The Category has been successfully saved",
       "success"
     );
-    this.showCategoriesForm = false;
-    this.showSetupForm = true;
+    this.hideCategoryForm();
+    this.categoryProgressRing = 100;
   }
 
-  hideVenueForm() {
-    this.showVenueForm = false;
+  hideShortVenueForm() {
+    this.showShortVenueForm = false;
     this.showSetupForm = true;
+    this.venueProgressRing = 100;
   }
 
   hideDiscountForm() {
     this.showDiscountForm = false;
+    this.showShortDiscountForm = true;
+  }
+
+  hideShortDiscountForm() {
+    this.showShortDiscountForm = false;
+    this.showDiscountForm = false;
     this.showSetupForm = true;
   }
 
-  hideCategoriesForm() {
+  hideCategoryForm() {
+    this.showCategoriesForm = false;
+    this.showShortCategoriesForm = true;
+  }
+
+  hideShortCategoriesForm() {
+    this.showShortCategoriesForm = false;
     this.showCategoriesForm = false;
     this.showSetupForm = true;
   }
