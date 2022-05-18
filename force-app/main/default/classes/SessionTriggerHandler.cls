@@ -13,6 +13,10 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
         createEventVenue(trigger.new);
     }
 
+    public override void afterUpdate() {
+        updateEventVenue(trigger.old, trigger.new);
+    }
+
     // Método de preenchimento do campo data e hora da sessão (usado posteriormente no flow)
     private static void fillSessionDT(List<Session__c> sessionList) {
 
@@ -44,7 +48,6 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
     }
 
 
-    // o que acontece se o espaço for alterado?
     // Método responsável por criar o espaço do evento, utilizando o espaço da sessão
     private static void createEventVenue(List<Session__c> sessionList) {
         List<Event_Venue__c> newEventVenues = new List<Event_Venue__c>();
@@ -61,6 +64,35 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
         try {
             insert newEventVenues;
             System.debug(LoggingLevel.INFO, newEventVenues);
+        }catch (Exception e) {
+            System.debug('Erro no insert ' + e.getMessage() + ' na linha ' + e.getLineNumber());
+        }
+    }
+
+    // Método responsável por atualizar o espaço e/ou o evento da related list 'Event Venues'
+    private static void updateEventVenue(List<Session__c> oldSessionList, List<Session__c> newSessionList) {
+        List<Event_Venue__c> eventVenues = new List<Event_Venue__c>();
+
+        for(Integer i = 0; i < oldSessionList.size(); i++) {
+            if(oldSessionList.get(i).Session__c != newSessionList.get(i).Session__c || oldSessionList.get(i).Venue__c != newSessionList.get(i).Venue__c) {
+                eventVenues = [SELECT Id, Event__c, Venue__c, Active__c FROM Event_Venue__c WHERE Event__c =:oldSessionList.get(i).Session__c AND Venue__c =:oldSessionList.get(i).Venue__c LIMIT 1]; 
+                if(eventVenues.isEmpty()) { break;}
+                //System.debug(LoggingLevel.INFO, eventVenues);
+                for(Integer j = 0; j<eventVenues.size(); j++) {
+                    if(eventVenues.get(j).Event__c == oldSessionList.get(i).Session__c && eventVenues.get(j).Venue__c == oldSessionList.get(i).Venue__c) {
+                        eventVenues.get(j).Active__c = false;
+                        System.debug(LoggingLevel.INFO, 'if' + eventVenues);
+                        continue;
+                    }
+                    eventVenues.get(j).Event__c = newSessionList.get(i).Session__c;
+                    eventVenues.get(j).Venue__c = newSessionList.get(i).Venue__c;
+                }
+            }
+        }
+
+        try {
+            update eventVenues;
+            //System.debug(LoggingLevel.INFO, eventVenues);
         }catch (Exception e) {
             System.debug('Erro no insert ' + e.getMessage() + ' na linha ' + e.getLineNumber());
         }

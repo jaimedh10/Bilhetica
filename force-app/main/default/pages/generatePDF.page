@@ -1,3 +1,5 @@
 <apex:page standardController="Ticket__c" renderAs="pdf">
-    <apex:image value="{!ticket__c.QRCode_Url__c}"></apex:image>{!ticket__c.QRCode_Url__c}
+    <apex:pageBlock>
+        <apex:image value="{!ticket__c.QRCode_Url__c}"/>
+    </apex:pageBlock>
 </apex:page>

@@ -183,6 +183,4 @@ public with sharing class SessionWizardController {
       
   }
 
-  public SessionWizardController() {
-  } 
 }

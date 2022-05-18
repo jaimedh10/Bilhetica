@@ -8,7 +8,7 @@ public class TestDataFactory {
         Id recordTypeId = Schema.SObjectType.Venue__c.getRecordTypeInfosByDeveloperName().get('Venue').getRecordTypeId();
         for(Integer i=0; i<numberOfVenues; i++) {
             Venue__c venue = new Venue__c();
-            venue.Name = 'Venue-'+ i;
+            venue.Name = 'Venue-'+ (i+1);
             venue.Capacity__c = 100;
             venue.RecordTypeId = recordTypeId; 
             venues.add(venue);
@@ -54,16 +54,17 @@ public class TestDataFactory {
         }
 
         insert sessions;
+        //System.debug(LoggingLevel.INFO, sessions);
         return sessions;
     }
 
 
-    public static List<Event__c> createEvents(Integer numberOfEvents, Id userId, Date startDate, Date finishDate) {
+    public static List<Event__c> createEvents(Integer numberOfEvents, Id userId, Date startDate, Date finishDate, String Name) {
         List<Event__c> events = new List<Event__c>();
 
         for(Integer i=0; i<numberOfEvents; i++) {
             Event__c event = new Event__c();
-            event.Name = 'Event' + (i+1);
+            event.Name = Name + ' ' + (i+1);
             event.Event_Manager__c = userId;
             event.Start_Date__c = startDate;
             event.Finish_Date__c = finishDate; 
@@ -73,6 +74,7 @@ public class TestDataFactory {
         }
 
         insert events;
+        //System.debug(LoggingLevel.INFO, events);
         return events;
     }
 }
