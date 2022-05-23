@@ -17,6 +17,7 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
         updateEventVenue(trigger.old, trigger.new);
     }
 
+
     // Método de preenchimento do campo data e hora da sessão (usado posteriormente no flow)
     private static void fillSessionDT(List<Session__c> sessionList) {
 
@@ -46,7 +47,6 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
             System.debug('Erro no update ' + e.getMessage() + ' na linha ' + e.getLineNumber());
         }
     }
-
 
     // Método responsável por criar o espaço do evento, utilizando o espaço da sessão
     private static void createEventVenue(List<Session__c> sessionList) {

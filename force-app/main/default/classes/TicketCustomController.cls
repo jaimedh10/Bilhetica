@@ -11,6 +11,24 @@ public with sharing class TicketCustomController {
         //return [SELECT Id, Contact__r.Name, Session__c, Seat__c, QR_Code__c FROM Ticket__c WHERE Id =:ticketId];    
     }
 
+    @AuraEnabled
+    public static Boolean validateTicket(String ticketId) {
+      Ticket__c ticket = [SELECT Id, Status__c FROM Ticket__c WHERE Id =:ticketId];
+      if(ticket.Status__c == 'Paid') {
+        ticket.Status__c = 'Invalid';
+        try {
+          update ticket;
+          System.debug(LoggingLevel.INFO, ticket);
+          return true;
+        }
+        catch(Exception e) {
+          System.debug(e.getMessage());
+          return false;
+        }   
+      }
+      return false;
+    }
+
     public TicketCustomController() {
 		//this.ticketId = ApexPages.currentPage().get        
     }
