@@ -11,22 +11,43 @@ public with sharing class TicketCustomController {
         //return [SELECT Id, Contact__r.Name, Session__c, Seat__c, QR_Code__c FROM Ticket__c WHERE Id =:ticketId];    
     }
 
+    // Manual ticket validation
     @AuraEnabled
-    public static Boolean validateTicket(String ticketId) {
+    public static Ticket__c validateTicket(String ticketId) {
       Ticket__c ticket = [SELECT Id, Status__c FROM Ticket__c WHERE Id =:ticketId];
       if(ticket.Status__c == 'Paid') {
         ticket.Status__c = 'Invalid';
         try {
           update ticket;
           System.debug(LoggingLevel.INFO, ticket);
-          return true;
+          return ticket;
         }
         catch(Exception e) {
           System.debug(e.getMessage());
-          return false;
+          return null;
         }   
       }
-      return false;
+      return null;
+    }
+
+    // Ticket validation trough QRCode Scanner
+    @AuraEnabled
+    public static Ticket__c checkQrCode(String qrCodeUrl){
+      qrCodeUrl = '%' + qrCodeUrl + '%';
+      Ticket__c ticket = [SELECT Id, Status__c, QRCode_Url__c FROM Ticket__c WHERE QRCode_Url__c LIKE :qrCodeUrl];
+      if(ticket.Status__c == 'Paid') {
+        ticket.Status__c = 'Invalid';
+        try {
+          update ticket;
+          System.debug(LoggingLevel.INFO, ticket);
+          return ticket;
+        }
+        catch(Exception e) {
+          System.debug(e.getMessage());
+          return null;
+        }   
+      }
+      return null;
     }
 
     public TicketCustomController() {

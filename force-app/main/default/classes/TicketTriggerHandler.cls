@@ -17,6 +17,7 @@ public with sharing class TicketTriggerHandler extends TriggerHandler {
         }
         
         System.debug(LoggingLevel.INFO, contactIdsList);
+
         if(contactIdsList.size() > 0) {
             Messaging.reserveMassEmailCapacity(contactIdsList.size());
             Messaging.MassEmailMessage mail = new Messaging.MassEmailMessage();
