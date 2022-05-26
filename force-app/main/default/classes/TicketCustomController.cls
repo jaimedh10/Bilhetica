@@ -5,10 +5,16 @@ public with sharing class TicketCustomController {
     public String session {get; set;} */
     public List<Ticket__c> tickets {get; set;}
 
-    public static List<Ticket__c> getContactTickets() {
-        List<Ticket__c> tickets = new List<Ticket__c>();
-        return tickets;
-        //return [SELECT Id, Contact__r.Name, Session__c, Seat__c, QR_Code__c FROM Ticket__c WHERE Id =:ticketId];    
+    public TicketCustomController() {
+      tickets = contactTickets();
+    }
+
+    public static List<Ticket__c> contactTickets() {
+        String contactId = Apexpages.currentPage().getParameters().get('id');
+        String sessionId = Apexpages.currentPage().getParameters().get('sessionId');
+        System.debug(contactId);
+        System.debug(sessionId);
+        return [SELECT Id, Contact__c, Contact__r.Name, Session__c, Session__r.Name, Seat__c, Seat__r.Seat__c, QR_Code__c, QRCode_Url__c FROM Ticket__c WHERE Session__c =:sessionId AND Contact__c =:contactId];    
     }
 
     // Manual ticket validation
@@ -48,9 +54,5 @@ public with sharing class TicketCustomController {
         }   
       }
       return null;
-    }
-
-    public TicketCustomController() {
-		//this.ticketId = ApexPages.currentPage().get        
     }
 }

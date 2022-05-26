@@ -14,7 +14,7 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
     }
 
     public override void afterUpdate() {
-        updateEventVenue(trigger.old, trigger.new);
+        updateEventVenue(trigger.oldMap, trigger.newMap);
     }
 
 
@@ -70,8 +70,57 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
     }
 
     // Método responsável por atualizar o espaço e/ou o evento da related list 'Event Venues'
-    private static void updateEventVenue(List<Session__c> oldSessionList, List<Session__c> newSessionList) {
+    private static void updateEventVenue(Map<Id, Session__c> oldSession, Map<Id, Session__c> newSession) {
         List<Event_Venue__c> eventVenues = new List<Event_Venue__c>();
+         
+        // não foi alterado nenhum campo no update
+        if(oldSession.equals(newSession)) {
+            return;
+        }
+
+        for(Session__c s : newSession) {
+
+        }
+
+        eventVenues = [SELECT Id, Event__c, Venue__c, Active__c FROM Event_Venue__c WHERE Event__c =:newSessionList.get(i).Session__c AND Venue__c =:newSessionList.get(i).Venue__c]; 
+
+        for(Id id : oldSession.keySet()) {
+            if(newSession.containsKey(id) == true) {
+                if(oldSession.get(id).Venue__c == newSession.get(id).Venue__c) {
+                    break;
+                }
+                // ver se o EV já existe
+                if() {
+
+                }
+                // caso não exista EV, cria
+                else {
+                    Event_Venue__c eventVenue = new Event_Venue__c();
+                    eventVenue.Event__c = newSessionList.get(id).Session__c;
+                    eventVenue.Venue__c = newSessionList.get(id).Venue__c;
+                    eventVenues.add(eventVenue);
+                }
+            }
+        }
+
+        
+        for(Session__c s : newSessionList) {
+            if(eventVenues.get(0).Event__c != newSessionList.get(i).Session__c && eventVenues.get(0).Venue__c == newSessionList.get(i).Venue__c) {
+                System.debug(LoggingLevel.INFO, 'if' + eventVenues);
+                continue;
+            } 
+        }
+
+        try {
+            update eventVenues;
+            //System.debug(LoggingLevel.INFO, eventVenues);
+        }catch (Exception e) {
+            System.debug('Erro no insert ' + e.getMessage() + ' na linha ' + e.getLineNumber());
+        }
+    }
+
+    private static void updateEventVenue(List<Session__c> oldSessionList, List<Session__c> newSessionList) {
+        /* List<Event_Venue__c> eventVenues = new List<Event_Venue__c>();
 
         for(Integer i = 0; i < oldSessionList.size(); i++) {
             if(oldSessionList.get(i).Session__c != newSessionList.get(i).Session__c || oldSessionList.get(i).Venue__c != newSessionList.get(i).Venue__c) {
@@ -95,7 +144,7 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
             //System.debug(LoggingLevel.INFO, eventVenues);
         }catch (Exception e) {
             System.debug('Erro no insert ' + e.getMessage() + ' na linha ' + e.getLineNumber());
-        }
+        } */
     }
 
 }

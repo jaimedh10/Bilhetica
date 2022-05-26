@@ -72,12 +72,12 @@ public with sharing class SessionWizardController {
     } 
   }
 
-  public class SessionMap {
+  /* public class SessionMap {
     @AuraEnabled
     public Id originalId;
     @AuraEnabled
     public Id clonedId;
-  }
+  } */
 
   @AuraEnabled
   public static Boolean simpleSessionVenuesCreation(List<Session__c> sessions) {

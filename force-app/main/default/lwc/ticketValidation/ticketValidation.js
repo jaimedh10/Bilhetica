@@ -10,8 +10,9 @@ import validateTicket from "@salesforce/apex/TicketCustomController.validateTick
 export default class TicketValidation extends LightningElement {
   @api recordId;
   ticketObject = TICKET_OBJECT;
+  isLoading = true;
 
-
+  
 
 
   @api async invoke() {
@@ -28,6 +29,7 @@ export default class TicketValidation extends LightningElement {
 
           updateRecord(recordInput)
             .then(() => {
+              this.isLoading = false;
               this.handleSucess();
               // Display fresh data in the form
               return refreshApex(this.result);
@@ -45,6 +47,7 @@ export default class TicketValidation extends LightningElement {
         this.error = error;
         console.log(error);
       });
+    this.isLoading = false;
     await this.sleep(2000);
   }
 
