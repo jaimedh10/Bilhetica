@@ -83,6 +83,7 @@ export default class SessionWizard extends LightningElement {
               "The Session(s) were successfully cloned.",
               "success"
             );
+            this.showCloningModal = false;
           }
         })
         .catch((error) => {

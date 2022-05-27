@@ -97,7 +97,7 @@ public with sharing class SessionWizardController {
 
     // Loop used to retrieve the Session Venues from the original session, which will then be added to the sessionIdAndSessionVenues map;
     // A Query é feita na declaração do ciclo pois apenas vai ser utilizada neste bloco e daí não necessita de ocupar espaço na heap durante a execução do restante código 
-    for(Session_Venue__c sv : [SELECT Id, Price__c, Seat_Type__c, Session__c, Venue__c FROM Session_Venue__c WHERE Session__c IN :sessionsIds]) {
+    for(Session_Venue__c sv : [SELECT Id, Price__c, Session__c, Venue__c FROM Session_Venue__c WHERE Session__c IN :sessionsIds]) {
       List<Session_Venue__c> tmpSessionVenue = sessionIdAndSessionVenues.get(sv.Session__c); // Get Session Id
       if(tmpSessionVenue == null) {
         tmpSessionVenue = new List<Session_Venue__c>();
@@ -154,7 +154,7 @@ public with sharing class SessionWizardController {
                 Session__c newSession = s.clone(false, true, false, false);
                 newSession.Date__c = sessionDate;
                 System.debug(LoggingLevel.INFO, sessionDate);
-                System.debug(LoggingLevel.INFO, endDate.get(0).Finish_Date__c);
+                //System.debug(LoggingLevel.INFO, endDate.get(0).Finish_Date__c);
                 newSessions.add(newSession);
               }
             } 
