@@ -38,17 +38,17 @@ public class TestDataFactory {
 
     // For Session Wizard
 
-    public static List<Session__c> createSessions(Integer numberOfSessions, String venueId, String eventId) {
+    public static List<Session__c> createSessions(Integer numberOfSessions, String venueId, String eventId, Time startTime) {
         List<Session__c> sessions = new List<Session__c>();
-        Time newTime = Time.newInstance(3, 3, 3, 0);
+        //Time newTime = Time.newInstance(3, 3, 3, 0);
 
         for(Integer i=0; i<numberOfSessions; i++) {
             Session__c session = new Session__c();
             session.Session__c = eventId;
             session.Venue__c = venueId;
             session.Date__c = Date.today(); 
-            session.Start_Time__c = newTime;
-            session.End_Time__c = newTime.addHours(1);
+            session.Start_Time__c = startTime;
+            session.End_Time__c = startTime.addHours(1);
             session.Session_Price__c = 1;
             sessions.add(session);
         }
@@ -76,5 +76,16 @@ public class TestDataFactory {
         insert events;
         //System.debug(LoggingLevel.INFO, events);
         return events;
+    }
+
+    // For Ticket Trigger Handler
+
+    public static List<Contact> createContact(Integer numberOfContacts) {
+        for(Integer i=0; i<numberOfContacts; i++) {
+            Contact c = new Contact();
+            c.Last_Name = 'Test ' + (i+1);
+        }
+        insert contact;
+        return contact;
     }
 }

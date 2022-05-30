@@ -19,6 +19,7 @@ private class SessionWizardControllerTest {
         Date startDate = Date.today();
         Date finishDateDailyEvent=Date.today().addDays(2), finishDateWeeklyEvent=Date.today().addDays(14);
         Date finishDateMonthlyEvent=Date.today().addMonths(2), finishDateAnnualyEvent = Date.today().addYears(2);
+        Time startTime = Time.newInstance(3, 3, 3, 0);
 
         
         List<Event__c> dailyEvents = TestDataFactory.createEvents(1, userId, startDate, finishDateDailyEvent, dailyEventName);
@@ -28,10 +29,10 @@ private class SessionWizardControllerTest {
         
         List<Venue__c> venues = TestDataFactory.createVenues(1);
         List<Venue__c> sections = TestDataFactory.createSections(1, venues.get(0).Id);
-        List<Session__c> dailySessions = TestDataFactory.createSessions(1, venues.get(0).Id, dailyEvents.get(0).Id);
-        List<Session__c> weeklySessions = TestDataFactory.createSessions(1, venues.get(0).Id, weeklyEvents.get(0).Id);
-        List<Session__c> monthlySessions = TestDataFactory.createSessions(1, venues.get(0).Id, monthlyEvents.get(0).Id);
-        List<Session__c> annualySessions = TestDataFactory.createSessions(1, venues.get(0).Id, annualyEvents.get(0).Id);
+        List<Session__c> dailySessions = TestDataFactory.createSessions(1, venues.get(0).Id, dailyEvents.get(0).Id, startTime);
+        List<Session__c> weeklySessions = TestDataFactory.createSessions(1, venues.get(0).Id, weeklyEvents.get(0).Id, startTime.addHours(1));
+        List<Session__c> monthlySessions = TestDataFactory.createSessions(1, venues.get(0).Id, monthlyEvents.get(0).Id, startTime.addHours(2));
+        List<Session__c> annualySessions = TestDataFactory.createSessions(1, venues.get(0).Id, annualyEvents.get(0).Id, startTime.addHours(3));
         //List<Venue__c> sessionVenues = SessionWizardController.createSessionVenues(, );
         
         /* System.runAs(user){

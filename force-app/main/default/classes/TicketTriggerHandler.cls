@@ -6,7 +6,7 @@ public with sharing class TicketTriggerHandler extends TriggerHandler {
         sendPaymentConfirmationEmail(trigger.new);
     }
     
-    // 
+    
     private static void sendPaymentConfirmationEmail(List<Ticket__c> ticketList) {
         List<Id> contactIdsList = new List<Id>();
         List<Id> ticketsIdsList = new List<Id>();

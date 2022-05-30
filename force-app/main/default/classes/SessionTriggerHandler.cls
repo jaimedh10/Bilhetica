@@ -7,6 +7,7 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
     }
     public override void beforeInsert() {
         fillSessionDT(trigger.new);
+        blockDuplicateSession(trigger.new);
     }
 
     public override void afterInsert() {
@@ -27,6 +28,30 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
             }
         } catch (Exception e) {
             System.debug('Error updating ' + e.getMessage() + ' in line ' + e.getLineNumber());
+        }
+    }
+
+    private static void blockDuplicateSession(List<Session__c> sessionList) {
+        Set<Id> venueId = new Set<Id>();
+        for(Session__c s : sessionList) {
+            venueId.add(s.Venue__c);
+        }
+
+        List<Session__c> sessions = [SELECT Id, Name, Session__c, Venue__c, Date__c, Start_Time__c, End_Time__c FROM Session__c WHERE Venue__c IN :venueId];
+        if(!sessions.isEmpty()) {
+            for(Session__c ses : sessionList) {
+                for(Session__c s : sessions) {
+                    if(s.Venue__c != ses.Venue__c) {
+                        continue;
+                    }
+                    // Duplicate found
+                    else if(ses.Date__c == s.Date__c && ses.Start_Time__c >= s.Start_Time__c && ses.End_Time__c <= s.End_Time__c || ses.Date__c == s.Date__c && ses.Start_Time__c <= s.Start_Time__c && ses.End_Time__c >= s.End_Time__c) {
+                        ses.addError('Current session is overlapping another session.');
+                        /* System.debug(ses);
+                        System.debug(s); */
+                    }
+                }    
+            }
         }
     }
     
@@ -54,37 +79,50 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
         for(Session__c s : sessionList) {
             // Verify if that Event is Mapped, otherwise create a Set and add the Venues to the Set
             if(venuesByEvent.containsKey(s.Session__c)) {
-                Set<Id> eventVenues = venuesByEvent.get(s.Session__c);
-                eventVenues.add(s.Venue__c);
-                venuesByEvent.put(s.Session__c, eventVenues);
+                Set<Id> currentEventVenues = venuesByEvent.get(s.Session__c);
+                currentEventVenues.add(s.Venue__c);
+                venuesByEvent.put(s.Session__c, currentEventVenues);
             } else {
-                Set<Id> eventVenues = new Set<Id>();
-                eventVenues.add(s.Venue__c);
-                venuesByEvent.put(s.Session__c, eventVenues);
+                Set<Id> currentEventVenues = new Set<Id>();
+                currentEventVenues.add(s.Venue__c);
+                venuesByEvent.put(s.Session__c, currentEventVenues);
             }
         }
 
+        System.debug(LoggingLevel.INFO, venuesByEvent);
         List<Event_Venue__c> newEventVenues = new List<Event_Venue__c>();
         if(!venuesByEvent.keySet().isEmpty()) {
-            // Query to check if there is already a Event Venue for that Event. If not, proceeds to create one.
-            Integer numberOfEventVenues = [SELECT Id FROM Event_Venue__c WHERE Event__c IN :venuesByEvent.keySet()].size();
-            if(numberOfEventVenues == 0) {
-                for(Id eventId : venuesByEvent.keySet()) {
-                    Set<Id> venues = venuesByEvent.get(eventId);
-                    for(Id venueId : venues) {
-                        Event_Venue__c eventVenue = new Event_Venue__c();
-                        eventVenue.Event__c = eventId; 
-                        eventVenue.Venue__c = venueId;
-                        newEventVenues.add(eventVenue);
+            // Query to retrieve the Venue from the Event Venues based on the Event.
+            List<Event_Venue__c> eventVenues = [SELECT Id, Venue__c FROM Event_Venue__c WHERE Event__c IN :venuesByEvent.keySet()];
+
+            // Add the Venues Ids to a Set
+            Set<Id> venuesSet = new Set<Id>();
+            for(Event_Venue__c ev : eventVenues) {
+                venuesSet.add(ev.Venue__c); 
+            }
+
+            for(Id eventId : venuesByEvent.keySet()) {
+                Set<Id> venues = venuesByEvent.get(eventId);
+                System.debug(venues);
+                System.debug(venuesSet);
+                // If the venuesSet matches the venuesByEvent Set does not create a Event Venue, otherwise creates 1
+            
+                for(Id venueId : venues) {
+                    if(venuesSet.contains(venueId)) {
+                        break;
                     }
+                    Event_Venue__c eventVenue = new Event_Venue__c();
+                    eventVenue.Event__c = eventId; 
+                    eventVenue.Venue__c = venueId;
+                    newEventVenues.add(eventVenue);
                 }
-            } 
+            }
         }
 
+        System.debug(LoggingLevel.INFO, newEventVenues);
         if(!newEventVenues.isEmpty()) {
             try {
                 insert newEventVenues;
-                System.debug(LoggingLevel.INFO, newEventVenues);
             }catch (Exception e) {
                 System.debug('Error on insert ' + e.getMessage() + ' in line ' + e.getLineNumber());
             }
