@@ -1,5 +1,6 @@
 public with sharing class TicketTriggerHandler extends TriggerHandler {
-    public override void afterInsert() {
+    public override void beforeInsert() {
+        duplicateTicket(trigger.new);
     }
 
     public override void afterUpdate() {
@@ -23,6 +24,26 @@ public with sharing class TicketTriggerHandler extends TriggerHandler {
             System.debug(LoggingLevel.INFO, contactIdsList);
         }
         
+    }
+
+    private static void duplicateTicket(List<Ticket__c> tickets) {
+        Set<Id> ticketSessionId = new Set<Id>();
+        Set<Id> ticketSessionVenueId = new Set<Id>();
+        Set<Id> ticketSeat = new Set<Id>();
+
+        for(Ticket__c t : tickets) {
+            ticketSessionId.add(t.Session__c);
+            ticketSessionVenueId.add(t.Session_Venue__c);
+            ticketSeat.add(t.Seat__c);
+        }
+        // Query to retrieve the tickets for that Session, Session Venue and Seat
+        List<Ticket__c> ticketsList = [SELECT Id FROM Ticket__c WHERE Session__c IN :ticketSessionId AND Session_Venue__c IN :ticketSessionVenueId AND Seat__c IN :ticketSeat];
+        System.debug(ticketsList);
+        if(!ticketsList.isEmpty()) {
+            // Duplicate found
+            tickets.get(0).addError('The current ticket record is duplicated.');
+            //System.debug(tickets.get(0));
+        }
     }
 
     @future(callout=true)
@@ -57,7 +78,12 @@ public with sharing class TicketTriggerHandler extends TriggerHandler {
                         pdf.getParameters().put('sessionId', t.Session__c);
                         pdf.setRedirect(true);
                         // Take the PDF content
-                        Blob b = pdf.getContent();
+                        Blob b;
+                        if(Test.isRunningTest()) { 
+                            b = Blob.valueOf('Unit.Test');
+                        } else {
+                            b = pdf.getContent();
+                        }
                         emailFile.setBody(b);
                         mail.setFileAttachments(new Messaging.EmailFileAttachment[] {emailFile});
                         Messaging.SingleEmailMessage[] mails = new List<Messaging.SingleEmailMessage> {mail};

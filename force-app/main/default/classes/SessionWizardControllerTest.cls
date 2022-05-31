@@ -33,8 +33,16 @@ private class SessionWizardControllerTest {
         List<Session__c> weeklySessions = TestDataFactory.createSessions(1, venues.get(0).Id, weeklyEvents.get(0).Id, startTime.addHours(1));
         List<Session__c> monthlySessions = TestDataFactory.createSessions(1, venues.get(0).Id, monthlyEvents.get(0).Id, startTime.addHours(2));
         List<Session__c> annualySessions = TestDataFactory.createSessions(1, venues.get(0).Id, annualyEvents.get(0).Id, startTime.addHours(3));
-        //List<Venue__c> sessionVenues = SessionWizardController.createSessionVenues(, );
-        
+
+        String sectionId = [SELECT Id FROM Venue__c LIMIT 1]?.Id;
+        List<Row__c> rows = TestDataFactory.createRows(1, 1, sectionId);
+        String seatId = [SELECT Id FROM Seat__c LIMIT 1]?.Id;
+        String sessionId = [SELECT Id FROM Session__c LIMIT 1]?.Id;
+        SessionWizardController.createSessionVenues(sessionId);
+        String sessionVenueId = [SELECT Id FROM Session_Venue__c WHERE Session__c = :sessionId LIMIT 1]?.Id;
+        List<Contact> contacts = TestDataFactory.createContacts(1);
+        String contactId = [SELECT Id FROM Contact LIMIT 1]?.Id;
+        List<Ticket__c> tickets = TestDataFactory.createTickets(2, seatId, sessionId, sessionVenueId, contactId);
         /* System.runAs(user){
         } */
     }
@@ -54,7 +62,7 @@ private class SessionWizardControllerTest {
         
         SessionWizardController.createSessionVenues(sessionId);
         List<Session_Venue__c> sessionVenues = [SELECT Id FROM Session_Venue__c WHERE Session__c =:sessionId];
-        System.assert(sessionVenues.size()==1);
+        System.assert(sessionVenues.size()>0);
     }
 
     @isTest
@@ -108,11 +116,70 @@ private class SessionWizardControllerTest {
     @isTest
     static void testUpdateSessionVenue() {
         
-        List<Session__c> sessions = [SELECT Id, Session__c FROM Session__c WHERE Session__r.Name='Daily Event 1' LIMIT 1];
-        sessions.get(0).Session__c = [SELECT Id FROM Event__c  WHERE Name='Monthly Event 1' LIMIT 1].Id;
+        List<Session__c> sessions = [SELECT Id, Session__c, Date__c, Start_Time__c, Session_D_T__c FROM Session__c WHERE Session__r.Name='Daily Event 1' LIMIT 1];
+        sessions.get(0).Session__c = [SELECT Id FROM Event__c  WHERE Name='Monthly Event 1' LIMIT 1]?.Id;
         update sessions;
-        System.assert(sessions.size() > 0);
+        // Assert for fillSessionDT method
+        DateTime sessionDateAndTime = DateTime.newInstanceGmt(sessions.get(0).Date__c, sessions.get(0).Start_Time__c);
+        System.assertEquals(sessionDateAndTime, sessions.get(0).Session_D_T__c);
     }
+    // passar para o status sold out
+
+    // Test for TicketTriggerHandler
+
+    @isTest 
+    static void testSendPaymentConfirmationEmail() {
+        Ticket__c ticket = [SELECT Id, Status__c FROM Ticket__c LIMIT 1];
+        ticket.Status__c = 'Paid';
+        update ticket;
+        System.assertEquals('Paid', ticket.Status__c);
+    }
+
+    // Test for TicketCustomController
+
+    @isTest 
+    static void testValidateTicket() {
+        String ticketId = [SELECT Id FROM Ticket__c WHERE Status__c = 'Paid' LIMIT 1]?.Id;
+        Ticket__c updatedTicket = TicketCustomController.validateTicket(ticketId);
+        if(updatedTicket == null) {
+            System.assertEquals(null, updatedTicket);
+        } else {
+            System.assertEquals('Invalid', updatedTicket.Status__c);
+        }
+        
+    }
+
+    @isTest
+    static void testCheckQrCode() {
+        Ticket__c ticket = [SELECT Id, QRCode_Url__c FROM Ticket__c WHERE Status__c = 'Paid' LIMIT 1];
+        Ticket__c updatedTicket = TicketCustomController.checkQrCode(ticket.QRCode_Url__c);
+        if(updatedTicket == null) {
+            System.assertEquals(null, updatedTicket);
+        } else {
+            System.assertEquals('Invalid', updatedTicket.Status__c);
+        }
+    }
+
+    @isTest
+    static void testContactTickets() {
+        PageReference pageRef = Page.contactTickets;
+        Test.setCurrentPage(pageRef);
+      
+        // Instantiate a new controller with all parameters in the page
+        TicketCustomController controller = new TicketCustomController();
+
+        String contactId = [SELECT Id FROM Contact LIMIT 1]?.Id;
+        String sessionId = [SELECT Id FROM Session__c LIMIT 1]?.Id;
+        // Add parameters to page URL
+        ApexPages.currentPage().getParameters().put('id', contactId);
+        ApexPages.currentPage().getParameters().put('sessionId', sessionId);
+      
+        
+
+        // Verify that the success page displays
+        //System.assertEquals('/apex/contactTickets?id=:contactId&sessionId=:sessionId', Page);
+    }
+
 
     // Bulk Testing 
 
@@ -147,6 +214,7 @@ private class SessionWizardControllerTest {
         }
         Test.stopTest();
     }
+
 
     /* @isTest
     static void testsimpleSessionVenuesCreationFail() {

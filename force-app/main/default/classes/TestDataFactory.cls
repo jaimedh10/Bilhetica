@@ -80,12 +80,52 @@ public class TestDataFactory {
 
     // For Ticket Trigger Handler
 
-    public static List<Contact> createContact(Integer numberOfContacts) {
+    public static List<Contact> createContacts(Integer numberOfContacts) {
+        List<Contact> contacts = new List<Contact>();
+
         for(Integer i=0; i<numberOfContacts; i++) {
-            Contact c = new Contact();
-            c.Last_Name = 'Test ' + (i+1);
+            //lastName = 'Test ' + (i+1);
+            Contact c = new Contact(lastName='Test ' + (i+1), email='jaime.oliveira@loba.pt');
+            contacts.add(c);
         }
-        insert contact;
-        return contact;
+
+        insert contacts;
+        System.debug(contacts);
+        return contacts;
+    }
+
+    public static List<Row__c> createRows(Integer numberOfRows, Integer numberOfSeats, String sectionId){
+        List<Row__c> rows = new List<Row__c>();
+
+        for(Integer i=0; i<numberOfRows; i++) {
+            Row__c row = new Row__c();
+            row.Name = 'Row-' + (i+1); 
+            row.Number_of_seats__c = numberOfSeats;
+            row.Venue__c = sectionId;
+            rows.add(row);
+        }
+
+        insert rows;
+        return rows;
+    }
+
+    public static List<Ticket__c> createTickets(Integer numberOfTickets, String seatId, String sessionId, String sessionVenueId, String contactId) {
+        List<Ticket__c> tickets = new List<Ticket__c>();
+
+        for(Integer i=0; i<numberOfTickets; i++) {
+            Ticket__c ticket = new Ticket__c();
+            if(i == 0) {
+                ticket.Status__c = 'Paid';
+            }
+            ticket.Seat__c = seatId;
+            ticket.Session__c = sessionId;
+            ticket.Session_Venue__c = sessionVenueId;
+            ticket.Contact__c = contactId;
+            tickets.add(ticket);
+            System.debug(ticket.Contact__c);
+        }
+
+        insert tickets;
+        return tickets;
     }
 }
