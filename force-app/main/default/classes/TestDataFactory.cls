@@ -9,7 +9,7 @@ public class TestDataFactory {
         for(Integer i=0; i<numberOfVenues; i++) {
             Venue__c venue = new Venue__c();
             venue.Name = 'Venue-'+ (i+1);
-            venue.Capacity__c = 100;
+            venue.Capacity__c = (i+1);
             venue.RecordTypeId = recordTypeId; 
             venues.add(venue);
         }

@@ -27,22 +27,28 @@ private class SessionWizardControllerTest {
         List<Event__c> monthlyEvents = TestDataFactory.createEvents(1, userId, startDate, finishDateMonthlyEvent, monthlyEventName);
         List<Event__c> annualyEvents = TestDataFactory.createEvents(1, userId, startDate, finishDateAnnualyEvent, annualyEventName);
         
-        List<Venue__c> venues = TestDataFactory.createVenues(1);
+        List<Venue__c> venues = TestDataFactory.createVenues(2);
         List<Venue__c> sections = TestDataFactory.createSections(1, venues.get(0).Id);
         List<Session__c> dailySessions = TestDataFactory.createSessions(1, venues.get(0).Id, dailyEvents.get(0).Id, startTime);
         List<Session__c> weeklySessions = TestDataFactory.createSessions(1, venues.get(0).Id, weeklyEvents.get(0).Id, startTime.addHours(1));
-        List<Session__c> monthlySessions = TestDataFactory.createSessions(1, venues.get(0).Id, monthlyEvents.get(0).Id, startTime.addHours(2));
+        List<Session__c> monthlySessions = TestDataFactory.createSessions(1, venues.get(1).Id, monthlyEvents.get(0).Id, startTime.addHours(2));
         List<Session__c> annualySessions = TestDataFactory.createSessions(1, venues.get(0).Id, annualyEvents.get(0).Id, startTime.addHours(3));
 
         String sectionId = [SELECT Id FROM Venue__c LIMIT 1]?.Id;
         List<Row__c> rows = TestDataFactory.createRows(1, 1, sectionId);
         String seatId = [SELECT Id FROM Seat__c LIMIT 1]?.Id;
-        String sessionId = [SELECT Id FROM Session__c LIMIT 1]?.Id;
+        String sessionId = [SELECT Id FROM Session__c WHERE Session__r.Name = 'Monthly Event 1' LIMIT 1]?.Id;
         SessionWizardController.createSessionVenues(sessionId);
         String sessionVenueId = [SELECT Id FROM Session_Venue__c WHERE Session__c = :sessionId LIMIT 1]?.Id;
         List<Contact> contacts = TestDataFactory.createContacts(1);
         String contactId = [SELECT Id FROM Contact LIMIT 1]?.Id;
         List<Ticket__c> tickets = TestDataFactory.createTickets(2, seatId, sessionId, sessionVenueId, contactId);
+
+        // Data to Test checkMaxCapacity method 
+        String dailySessionId = [SELECT Id FROM Session__c WHERE Session__r.Name = 'Daily Event 1' LIMIT 1]?.Id;
+        SessionWizardController.createSessionVenues(dailySessionId);
+        String dailySessionVenueId = [SELECT Id FROM Session_Venue__c WHERE Session__c = :dailySessionId LIMIT 1]?.Id;
+        TestDataFactory.createTickets(1, seatId, dailySessionId, dailySessionVenueId, contactId);
         /* System.runAs(user){
         } */
     }
@@ -53,7 +59,7 @@ private class SessionWizardControllerTest {
     static void testfindVenues() {
         String queryTerm = 'Venue';
         List<Venue__c> venues = SessionWizardController.findVenues(queryTerm);
-        System.assert(venues.size()==1);
+        System.assert(venues.size() > 0);
     }
 
     @isTest 
@@ -115,15 +121,19 @@ private class SessionWizardControllerTest {
     // Test for SessionTrigger
     @isTest
     static void testUpdateSessionVenue() {
-        
-        List<Session__c> sessions = [SELECT Id, Session__c, Date__c, Start_Time__c, Session_D_T__c FROM Session__c WHERE Session__r.Name='Daily Event 1' LIMIT 1];
-        sessions.get(0).Session__c = [SELECT Id FROM Event__c  WHERE Name='Monthly Event 1' LIMIT 1]?.Id;
+        List<Session__c> sessions = [SELECT Id, Session__c, Status__c, Date__c, Start_Time__c, Session_D_T__c, Max_Capacity__c, Tickets_Sold__c FROM Session__c WHERE Session__r.Name='Daily Event 1' LIMIT 1];
+        sessions.get(0).Session__c = [SELECT Id FROM Event__c  WHERE Name='Annualy Event 1' LIMIT 1]?.Id;
         update sessions;
+
         // Assert for fillSessionDT method
         DateTime sessionDateAndTime = DateTime.newInstanceGmt(sessions.get(0).Date__c, sessions.get(0).Start_Time__c);
         System.assertEquals(sessionDateAndTime, sessions.get(0).Session_D_T__c);
+        // Assert for checkMaxCapacity method
+        if(sessions.get(0).Max_Capacity__c == sessions.get(0).Tickets_Sold__c) {
+            System.assertEquals('Sold Out', sessions.get(0).Status__c);
+        }
     }
-    // passar para o status sold out
+    
 
     // Test for TicketTriggerHandler
 
@@ -173,11 +183,6 @@ private class SessionWizardControllerTest {
         // Add parameters to page URL
         ApexPages.currentPage().getParameters().put('id', contactId);
         ApexPages.currentPage().getParameters().put('sessionId', sessionId);
-      
-        
-
-        // Verify that the success page displays
-        //System.assertEquals('/apex/contactTickets?id=:contactId&sessionId=:sessionId', Page);
     }
 
 
@@ -185,14 +190,14 @@ private class SessionWizardControllerTest {
 
     /* @isTest 
     static void bulkTestCreateSessionVenues() {
-        Id sessionId = [SELECT Id FROM Session__c LIMIT 1].Id;
-        
+        Id sessionId = [SELECT Id FROM Session__c LIMIT 1]?.Id;
+        // Method to create 25 sections for the Venue of the Session
         SessionWizardController.createSessionVenues(sessionId);
         List<Session_Venue__c> sessionVenues = [SELECT Id FROM Session_Venue__c WHERE Session__c =:sessionId];
-        System.assert(sessionVenues.size()==50);
-    }
+        System.assert(sessionVenues.size()==25);
+    } */
 
-    @isTest
+    /* @isTest
     static void bulkTestsimpleSessionVenuesCreation() {
         List<Session__c> sessions = [SELECT Id, Name, Venue__c, Session_Price__c FROM Session__c LIMIT 50];
         Boolean result = SessionWizardController.simpleSessionVenuesCreation(sessions);
@@ -210,9 +215,16 @@ private class SessionWizardControllerTest {
         }catch(AuraHandledException e) {
             System.debug(e.getMessage());
             System.assert(e.getMessage().length()>0);
-            //System.assertEquals(e.getMessage(), e.getMessage());  
         }
         Test.stopTest();
+    }
+
+    // For TicketCustom
+
+    @isTest
+    static void testEmptyQRCodeUrl() {
+        Ticket__c t = TicketCustomController.checkQrCode('');
+        System.assertEquals(null, t);
     }
 
 

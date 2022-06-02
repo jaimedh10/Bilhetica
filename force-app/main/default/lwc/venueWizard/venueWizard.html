@@ -25,6 +25,7 @@
                 <div class="slds-col">
                     <lightning-input-field required field-name="Name"></lightning-input-field>
                     <lightning-input-field field-name="Venue_Opening__c"></lightning-input-field>
+                    <lightning-input-field field-name="Venue_without_Sections__c" onchange={handleCheckboxSections}></lightning-input-field>
                     <lightning-input-field field-name="Venue_Location__c"></lightning-input-field>
                 </div>
                 <div class="slds-col">
@@ -36,6 +37,9 @@
             <div class="slds-var-m-top_medium">
                 <lightning-button variant="brand" type="submit" label="Save" disabled={disabled}
                     class="slds-var-m-left_x-small"></lightning-button>
+                <lightning-button variant="success" label="Finish" onclick={hideVenueForm} disabled={finishButton}
+                    class="slds-var-m-left_x-small">
+                </lightning-button>
                 <template if:true={showSectionButton}>
                     <div class="slds-var-m-top_medium">
                         <lightning-button label="Add Section" onclick={handleSectionInput}

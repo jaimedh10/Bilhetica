@@ -39,8 +39,11 @@ public with sharing class TicketCustomController {
     // Ticket validation trough QRCode Scanner
     @AuraEnabled
     public static Ticket__c checkQrCode(String qrCodeUrl){
-      qrCodeUrl = '%' + qrCodeUrl + '%';
-      Ticket__c ticket = [SELECT Id, Status__c, QRCode_Url__c FROM Ticket__c WHERE QRCode_Url__c LIKE :qrCodeUrl];
+      if(String.isBlank(qrCodeUrl)) {
+        return null;
+      }
+      String qrCodeValue = '%' + qrCodeUrl + '%';
+      Ticket__c ticket = [SELECT Id, Status__c, QRCode_Url__c FROM Ticket__c WHERE QRCode_Url__c LIKE :qrCodeValue LIMIT 1];
       if(ticket.Status__c == 'Paid') {
         ticket.Status__c = 'Invalid';
         try {
@@ -50,7 +53,6 @@ public with sharing class TicketCustomController {
         }
         catch(Exception e) {
           System.debug(e.getMessage());
-          return null;
         }   
       }
       return null;

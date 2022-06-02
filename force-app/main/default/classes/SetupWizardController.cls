@@ -33,9 +33,28 @@ public with sharing class SetupWizardController {
     public static List<Row__c> createRows(Integer numberOfRows, String sectionId){
         if(String.isBlank(sectionId))
             return null;
-        
-        System.debug(LoggingLevel.INFO, sectionId); 
+        System.debug(LoggingLevel.INFO, sectionId);
         List<Row__c> rows = new List<Row__c>();
+
+        if(numberOfRows == 1) {
+            Id recordTypeId = [SELECT Id, Name, DeveloperName FROM RecordType WHERE SObjectType = 'Venue__c' AND DeveloperName = 'Venue' LIMIT 1].Id;
+            List<Venue__c> venues = [SELECT Capacity__c FROM Venue__c WHERE Id = :sectionId AND RecordTypeId = :recordTypeId];
+            // Only if the sectionId is not a Section but a Venue (Without Sections)
+            if(!venues.isEmpty()) {
+                Row__c row = new Row__c();
+                row.Name = 'Row-1'; 
+                row.Number_of_seats__c = venues.get(0).Capacity__c;
+                row.Venue__c = sectionId;
+                rows.add(row);
+                try {
+                    insert rows;
+                    return rows;
+                } catch (Exception e) {
+                    System.debug(e.getMessage());
+                    return null;
+                }
+            }
+        }
 
         for(Integer i=0; i<numberOfRows; i++) {
             Row__c row = new Row__c();

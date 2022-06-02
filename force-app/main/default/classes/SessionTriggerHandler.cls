@@ -59,8 +59,8 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
     private static void checkMaxCapacity(List<Session__c> sessionList) {
         try {
             for(Session__c s : sessionList) {
-                System.debug(s.Max_Capacity__c );
-                System.debug(s.Tickets_Sold__c);
+                /* System.debug(s.Max_Capacity__c );
+                System.debug(s.Tickets_Sold__c); */
                 if(s.Tickets_Sold__c < s.Max_Capacity__c) {
                     continue;
                 }
