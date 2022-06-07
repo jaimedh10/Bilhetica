@@ -1,3 +1,3 @@
-trigger VenueTrigger on Venue__c (before insert, after delete, before update) {
+trigger VenueTrigger on Venue__c (before insert, before update) {
     new VenueTriggerHandler().run();
 }

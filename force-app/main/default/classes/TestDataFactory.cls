@@ -18,6 +18,21 @@ public class TestDataFactory {
         return venues;
     }
 
+    public static List<Venue__c> createVenuesWithPredefinedCapacity(Integer numberOfVenues, Integer venueCapacity) {
+        List<Venue__c> venues = new List<Venue__c>();
+        Id recordTypeId = Schema.SObjectType.Venue__c.getRecordTypeInfosByDeveloperName().get('Venue').getRecordTypeId();
+        for(Integer i=0; i<numberOfVenues; i++) {
+            Venue__c venue = new Venue__c();
+            venue.Name = 'Venue-'+ (i+1);
+            venue.Capacity__c = venueCapacity;
+            venue.RecordTypeId = recordTypeId; 
+            venues.add(venue);
+        }
+        
+        insert venues;
+        return venues;
+    }
+
 
     public static List<Venue__c> createSections(Integer numberOfSections, Id venueId) {
         List<Venue__c> sections = new List<Venue__c>();
