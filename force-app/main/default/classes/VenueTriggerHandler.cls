@@ -75,14 +75,14 @@ public with sharing class VenueTriggerHandler extends TriggerHandler {
 
         for(Venue__c v : oldVenuesList) {
             for(Venue__c venue : newVenuesList) {
-                if(v.Capacity__c == venue.Capacity__c || venue.recordTypeId == recordTypeId) {
+                if(v.Id != venue.Id || venue.recordTypeId == recordTypeId) {
                     continue;
                 }
-                else if (venue.Capacity__c > v.Capacity__c && venue.Venue__c == v.Venue__c) {
+                else if(v.Id == venue.Id && venue.Capacity__c > v.Capacity__c && venue.Venue__c == v.Venue__c) {
                     oldCapacity = v.Capacity__c;
-                    mainVenuesId.add(v.Venue__c);
+                    mainVenuesId.add(venue.Venue__c);
                 }
-                else {
+                else if(v.Id == venue.Id && venue.Capacity__c < v.Capacity__c && venue.Venue__c == v.Venue__c) {
                     venue.addError('Section capacity decrease is not possible.');
                 }
             }
