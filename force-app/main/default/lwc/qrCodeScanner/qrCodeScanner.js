@@ -43,6 +43,13 @@ export default class QrCodeScanner extends LightningElement {
                   "success"
                 );
               }
+              else {
+                this.dispatchToast(
+                  "Warning!",
+                  "The QRCode is not valid.",
+                  "warning"
+                );
+              }
             })
             .catch((error) => {
               this.error = error;

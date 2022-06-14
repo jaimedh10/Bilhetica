@@ -2,7 +2,7 @@ public with sharing class SessionWizardController {
 
   @TestVisible private static Boolean throwException = false;
 
-  @AuraEnabled(cacheable=true) // To call an Apex method imperatively, you can choose to set cacheable=true
+  @AuraEnabled(cacheable=true) // Improve runtime performance
   public static List<Venue__c> findVenues(String queryTerm) {
     try {
       System.debug(throwException);
@@ -72,7 +72,9 @@ public with sharing class SessionWizardController {
     } 
   }
 
-  /* public class SessionMap {
+  /* 
+  Another possible solution to create Session Venues
+  public class SessionMap {
     @AuraEnabled
     public Id originalId;
     @AuraEnabled
@@ -96,7 +98,6 @@ public with sharing class SessionWizardController {
     }
 
     // Loop used to retrieve the Session Venues from the original session, which will then be added to the sessionIdAndSessionVenues map;
-    // A Query é feita na declaração do ciclo pois apenas vai ser utilizada neste bloco e daí não necessita de ocupar espaço na heap durante a execução do restante código 
     for(Session_Venue__c sv : [SELECT Id, Price__c, Session__c, Venue__c FROM Session_Venue__c WHERE Session__c IN :sessionsIds]) {
       List<Session_Venue__c> tmpSessionVenue = sessionIdAndSessionVenues.get(sv.Session__c); // Get Session Id
       if(tmpSessionVenue == null) {
@@ -141,13 +142,10 @@ public with sharing class SessionWizardController {
       System.debug(LoggingLevel.INFO, endDate);
       List<Session__c> newSessions = new List<Session__c>();
       Session ses;
-      //Date endDate = sessions.get(0).Session__r.Finish_Date__c;
-      //List<Session_Venue__c> sessionVenues = [SELECT Id FROM Session_Venue__c WHERE Session__c IN :sessionIdList];
-      //List<Session_Venue__c> newSessionVenues = new List<Session_Venue__c>();
 
 
       switch on peridiocityValue {
-        // Clonagem de sessões diárias
+        // Cloning of daily sessions
         when 'Daily' {
             for(Session__c s : sessions) {
               for(Date sessionDate = s.Date__c.addDays(1); sessionDate <= endDate.get(0).Finish_Date__c; sessionDate = sessionDate.addDays(1)) {
@@ -160,7 +158,7 @@ public with sharing class SessionWizardController {
             } 
         }
 
-        // Clonagem de sessões semanais
+        // Cloning of weekly sessions
         when 'Weekly' {
             for(Session__c s : sessions) {
               for(Date sessionDate = s.Date__c.addDays(7); sessionDate <= endDate.get(0).Finish_Date__c; sessionDate = sessionDate.addDays(7)) {
@@ -172,7 +170,7 @@ public with sharing class SessionWizardController {
             }
         }
 
-        // Clonagem de sessões mensais
+        // Cloning of monthly sessions
         when 'Monthly' {
               for(Session__c s : sessions) {
               for(Date sessionDate = s.Date__c.addMonths(1); sessionDate <= endDate.get(0).Finish_Date__c; sessionDate = sessionDate.addMonths(1)) {
@@ -184,7 +182,7 @@ public with sharing class SessionWizardController {
             }
         }
 
-        // Clonagem de sessões anuais
+        // Cloning of annual sessions
         when 'Annualy' {
           for(Session__c s : sessions) {
             for(Date sessionDate = s.Date__c.addYears(1); sessionDate <= endDate.get(0).Finish_Date__c; sessionDate = sessionDate.addYears(1)) {
@@ -206,7 +204,7 @@ public with sharing class SessionWizardController {
           return false; 
         }
         insert newSessions;
-        // Criação de sessionVenues
+        // Create sessionVenues
         Boolean result = simpleSessionVenuesCreation(newSessions);
         System.debug(LoggingLevel.INFO, result);
         return result; 
@@ -214,8 +212,6 @@ public with sharing class SessionWizardController {
       catch(Exception e) {
         System.debug(e.getMessage());
         return false;
-      }
-      
+      }  
   }
-
 }

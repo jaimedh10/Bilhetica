@@ -14,14 +14,11 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
         createEventVenue(trigger.new);
     }
 
-    public override void afterUpdate() {
-        //updateEventVenue(trigger.oldMap, trigger.newMap);
-    }
+
 
 
     // Method for filling in the Session date and time field (used later in a Flow)
     private static void fillSessionDT(List<Session__c> sessionList) {
-
         try {
             for(Session__c s : sessionList) {
                 s.Session_D_T__c = DateTime.newInstanceGmt(s.Date__c, s.Start_Time__c);
@@ -31,6 +28,7 @@ public with sharing class SessionTriggerHandler extends TriggerHandler {
         }
     }
 
+    // Method to block overlapping sessions
     private static void blockDuplicateSession(List<Session__c> sessionList) {
         Set<Id> venueId = new Set<Id>();
         for(Session__c s : sessionList) {

@@ -20,13 +20,16 @@ public with sharing class TicketCustomController {
     // Manual ticket validation
     @AuraEnabled
     public static Ticket__c validateTicket(String ticketId) {
-      Ticket__c ticket = [SELECT Id, Status__c FROM Ticket__c WHERE Id =:ticketId];
-      if(ticket.Status__c == 'Paid') {
-        ticket.Status__c = 'Invalid';
+      List<Ticket__c> tickets = [SELECT Id, Status__c FROM Ticket__c WHERE Id =:ticketId LIMIT 1];
+      if(tickets.isEmpty()) {
+        return null;
+      }
+      if(tickets.get(0).Status__c == 'Paid') {
+        tickets.get(0).Status__c = 'Invalid';
         try {
-          update ticket;
-          System.debug(LoggingLevel.INFO, ticket);
-          return ticket;
+          update tickets;
+          System.debug(LoggingLevel.INFO, tickets);
+          return tickets.get(0);
         }
         catch(Exception e) {
           System.debug(e.getMessage());

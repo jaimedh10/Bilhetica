@@ -9,6 +9,8 @@ public with sharing class VenueTriggerHandler extends TriggerHandler {
     }    
 
 
+    
+
     public class VenueCapacity {
         public Decimal maxCapacity;
         public Decimal usedCapacity;
@@ -38,7 +40,6 @@ public with sharing class VenueTriggerHandler extends TriggerHandler {
         List<Venue__c> venues = [SELECT Id, Venue__c, Capacity__c, Venue__r.Capacity__c FROM Venue__c WHERE RecordTypeId != :recordTypeId AND Venue__c IN :mainVenuesId];
         if(!venues.isEmpty()) {
             for(Venue__c v : venues) {
-                //  Venue__r.Remaining_Capacity__c
                 VenueCapacity sum;
                 System.debug(v);
                 if(venueIdAndSectionsCapacitySum.containsKey(v.Venue__c)) {
@@ -58,7 +59,7 @@ public with sharing class VenueTriggerHandler extends TriggerHandler {
                     VenueCapacity sumTotal = venueIdAndSectionsCapacitySum.get(v.Venue__c);
                     System.debug(sumTotal);
                     if(v.Capacity__c > (sumTotal.maxCapacity - sumTotal.usedCapacity)) {
-                        v.addError('Current Section(s) capacity exceeds Venue max capacity');
+                        v.addError('Current Section(s) capacity exceeds Venue max capacity.');
                     }
                 }
             }
@@ -69,6 +70,7 @@ public with sharing class VenueTriggerHandler extends TriggerHandler {
     private static void checkIfSectionCapacityChanged(List<Venue__c> oldVenuesList, List<Venue__c> newVenuesList) {
         Map<Id, VenueCapacity> venueIdAndSectionsCapacitySum = new Map<Id, VenueCapacity>();
         Set<Id> mainVenuesId = new Set<Id>();
+        Decimal oldCapacity = 0;
         Id recordTypeId = Schema.SObjectType.Venue__c.getRecordTypeInfosByDeveloperName().get('Venue').getRecordTypeId();
 
         for(Venue__c v : oldVenuesList) {
@@ -76,7 +78,13 @@ public with sharing class VenueTriggerHandler extends TriggerHandler {
                 if(v.Capacity__c == venue.Capacity__c || venue.recordTypeId == recordTypeId) {
                     continue;
                 }
-                mainVenuesId.add(v.Venue__c);
+                else if (venue.Capacity__c > v.Capacity__c && venue.Venue__c == v.Venue__c) {
+                    oldCapacity = v.Capacity__c;
+                    mainVenuesId.add(v.Venue__c);
+                }
+                else {
+                    venue.addError('Section capacity decrease is not possible.');
+                }
             }
         }
 
@@ -84,10 +92,9 @@ public with sharing class VenueTriggerHandler extends TriggerHandler {
             return;
         }
         System.debug(mainVenuesId);
-        List<Venue__c> venues = [SELECT Id, Venue__c, Capacity__c, Venue__r.Capacity__c FROM Venue__c WHERE RecordTypeId != :recordTypeId AND Venue__c IN :mainVenuesId];
-        if(!venues.isEmpty()) {
-            for(Venue__c v : venues) {
-                //  Venue__r.Remaining_Capacity__c
+        List<Venue__c> sections = [SELECT Id, Venue__c, Capacity__c, Venue__r.Capacity__c FROM Venue__c WHERE RecordTypeId != :recordTypeId AND Venue__c IN :mainVenuesId];
+        if(!sections.isEmpty()) {
+            for(Venue__c v : sections) {
                 VenueCapacity sum;
                 System.debug(v);
                 if(venueIdAndSectionsCapacitySum.containsKey(v.Venue__c)) {
@@ -106,7 +113,7 @@ public with sharing class VenueTriggerHandler extends TriggerHandler {
                 if(venueIdAndSectionsCapacitySum.containsKey(v.Venue__c)) {
                     VenueCapacity sumTotal = venueIdAndSectionsCapacitySum.get(v.Venue__c);
                     System.debug(sumTotal);
-                    if(v.Capacity__c > (sumTotal.maxCapacity - sumTotal.usedCapacity)) {
+                    if(v.Capacity__c > (sumTotal.maxCapacity - (sumTotal.usedCapacity - oldCapacity))) {
                         v.addError('Current Section(s) capacity exceeds Venue maximum capacity');
                     }
                 }

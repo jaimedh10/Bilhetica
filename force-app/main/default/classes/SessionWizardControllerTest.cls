@@ -147,6 +147,8 @@ private class SessionWizardControllerTest {
 
     // Test for TicketCustomController
 
+    // Positive Testing
+
     @isTest 
     static void testValidateTicket() {
         String ticketId = [SELECT Id FROM Ticket__c WHERE Status__c = 'Paid' LIMIT 1]?.Id;
@@ -156,7 +158,6 @@ private class SessionWizardControllerTest {
         } else {
             System.assertEquals('Invalid', updatedTicket.Status__c);
         }
-        
     }
 
     @isTest
@@ -219,7 +220,7 @@ private class SessionWizardControllerTest {
         Test.stopTest();
     }
 
-    // For TicketCustom
+    // For TicketCustomController
 
     @isTest
     static void testEmptyQRCodeUrl() {
@@ -227,6 +228,18 @@ private class SessionWizardControllerTest {
         System.assertEquals(null, t);
     }
 
+    @isTest
+    static void testInvalidTicketId() {
+        Ticket__c t = TicketCustomController.validateTicket('123');
+        System.assertEquals(null, t);
+    }
+
+    @isTest
+    static void testValidateNotPaidTicket() {
+        String ticketId = [SELECT Id FROM Ticket__c WHERE Status__c != 'Paid' LIMIT 1]?.Id;
+        Ticket__c ticket = TicketCustomController.validateTicket(ticketId);
+        System.assertEquals(null, ticket);
+    }
 
     /* @isTest
     static void testsimpleSessionVenuesCreationFail() {

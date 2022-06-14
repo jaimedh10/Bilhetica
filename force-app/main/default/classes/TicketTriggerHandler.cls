@@ -3,11 +3,18 @@ public with sharing class TicketTriggerHandler extends TriggerHandler {
         duplicateTicket(trigger.new);
     }
 
+    public override void afterInsert() {
+        sendPaymentConfirmationEmail(trigger.new);
+    }
+
     public override void afterUpdate() {
         sendPaymentConfirmationEmail(trigger.new);
     }
     
-    
+
+
+
+    // Method to send confirmation email after the ticket is paid.
     private static void sendPaymentConfirmationEmail(List<Ticket__c> ticketList) {
         List<Id> contactIdsList = new List<Id>();
         List<Id> ticketsIdsList = new List<Id>();
@@ -26,6 +33,7 @@ public with sharing class TicketTriggerHandler extends TriggerHandler {
         
     }
 
+    // Method to block duplicate tickets insertion
     private static void duplicateTicket(List<Ticket__c> tickets) {
         Set<Id> ticketSessionId = new Set<Id>();
         Set<Id> ticketSessionVenueId = new Set<Id>();
@@ -46,7 +54,7 @@ public with sharing class TicketTriggerHandler extends TriggerHandler {
         }
     }
 
-    @future(callout=true)
+    @future(callout=true) // A future method runs in the background, asynchronously.
     public static void sendEmail(List<Id> contactIdsList, List<Id> ticketsIdList) {
         if(contactIdsList.size() > 0) {
             Messaging.reserveSingleEmailCapacity(contactIdsList.size());
