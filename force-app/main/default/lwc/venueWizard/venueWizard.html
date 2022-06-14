@@ -1,0 +1,121 @@
+<template>
+    <template if:true={showShortVenueForm}>
+        <div class="slds-is-relative">
+            <h2 class="header">Create Venues</h2>
+            <p>Create as many venues as you need</p>
+            <template for:each={venues} for:item="venue">
+                <div class="slds-box" key={venue}>
+                    <lightning-record-view-form object-api-name={venueObject} record-id={venue}>
+                        <lightning-messages> </lightning-messages>
+                        <lightning-output-field field-name="Name"></lightning-output-field>
+                    </lightning-record-view-form>
+                </div>
+            </template>
+            <lightning-button variant="brand" label="Create Venue" onclick={handleVenueForm}
+                class="slds-var-m-left_x-small"></lightning-button>
+            <!-- alterar comportamento dos botões (feedback utilizador)-->
+        </div>
+    </template>
+
+    <template if:true={showVenueForm}>
+        <lightning-record-edit-form object-api-name={venueObject} onsuccess={handleSuccess} onload={hideLoading}
+            onsubmit={showLoading} onerror={errorDefaultMessage}>
+            <lightning-messages> </lightning-messages>
+            <div class="slds-grid slds-gutters">
+                <div class="slds-col">
+                    <lightning-input-field required field-name="Name"></lightning-input-field>
+                    <lightning-input-field field-name="Venue_Opening__c"></lightning-input-field>
+                    <lightning-input-field field-name="Venue_without_Sections__c" onchange={handleCheckboxSections}></lightning-input-field>
+                    <lightning-input-field field-name="Venue_Location__c"></lightning-input-field>
+                </div>
+                <div class="slds-col">
+                    <lightning-input-field field-name="Capacity__c"></lightning-input-field>
+                    <lightning-input-field field-name="Venue_Closing_Time__c"></lightning-input-field>
+                    <lightning-input-field field-name="Type__c"></lightning-input-field>
+                </div>
+            </div>
+            <div class="slds-var-m-top_medium">
+                <lightning-button variant="brand" type="submit" label="Save" disabled={disabled}
+                    class="slds-var-m-left_x-small"></lightning-button>
+                <lightning-button variant="success" label="Finish" onclick={hideVenueForm} disabled={finishButton}
+                    class="slds-var-m-left_x-small">
+                </lightning-button>
+                <template if:true={showSectionButton}>
+                    <div class="slds-var-m-top_medium">
+                        <lightning-button label="Add Section" onclick={handleSectionInput}
+                            class="slds-var-m-left_x-small">
+                        </lightning-button>
+                    </div>
+                </template>
+            </div>
+        </lightning-record-edit-form>
+    </template>
+
+
+    <!-- Apresenta o input de introdução do número de Sections a criar -->
+    <template if:true={showSectionInput}>
+        <lightning-input type="number" name="numberOfSections" value={numberOfSections}
+            onchange={handleNumberOfSections} placeholder="Enter the number of Sections" label="How many sections?"
+            max="99" required>
+        </lightning-input>
+        <lightning-button variant="neutral" label="Next" onclick={handleSectionForm}></lightning-button>
+        <lightning-button variant="success" label="Finish" onclick={hideVenueForm} disabled={finishButton}
+                    class="slds-var-m-left_x-small">
+        </lightning-button>
+        <!-- Apresenta o formulário para criação de Sections -->
+        <template if:true={showSectionForm}>
+            <template for:each={sections} for:item="section">
+                <div class="slds-border_bottom slds-var-p-around_medium" key={section.Id}>
+
+                    <lightning-record-edit-form object-api-name={venueObject} record-id={section.Id}
+                        record-type-id={section.RecordTypeId} onload={hideLoading} onsubmit={handleSectionUpdate} onsuccess={handleSectionSuccess}>
+                        <lightning-messages> </lightning-messages>
+                        <div class="slds-grid slds-gutters">
+                            <div class="slds-col">
+                                <lightning-input-field field-name="Name"></lightning-input-field>
+                                <lightning-button variant="brand" type="submit" label="Update Section">
+                                </lightning-button>
+                            </div>
+                            <div class="slds-col">
+                                <lightning-input-field field-name="Capacity__c"></lightning-input-field>
+                                <lightning-input-field field-name="Venue__c"></lightning-input-field>
+                            </div>
+                        </div>
+                    </lightning-record-edit-form>
+                    <lightning-input type="number" name="numberOfRows" data-section={section.Id}
+                        onchange={handleNumberOfRows} placeholder="Enter the number of rows for the section"
+                        label="How many rows?" max="99" required>
+                    </lightning-input>
+                    <lightning-button variant="neutral" label="Next" onclick={handleRowsForm} data-section={section.Id}>
+                    </lightning-button>
+                    <template if:true={showRows}>
+                        <template for:each={section.rows} for:item="row">
+                            <div class="slds-border_bottom slds-var-p-around_medium" key={row.Id}>
+                                <lightning-record-edit-form object-api-name={rowObject} record-id={row.Id}
+                                    onload={hideLoading} onsubmit={handleRowUpdate} onsuccess={handleRowSuccess}>
+                                    <lightning-messages> </lightning-messages>
+                                    <div class="slds-grid slds-gutters">
+                                        <div class="slds-col">
+                                            <lightning-input-field field-name="Name">
+                                            </lightning-input-field>
+                                            <lightning-button variant="brand" type="submit" label="Update Row">
+                                            </lightning-button>
+                                        </div>
+                                        <div class="slds-col">
+                                            <lightning-input-field field-name="Number_of_seats__c">
+                                            </lightning-input-field>
+                                            <lightning-input-field field-name="Venue__c">
+                                            </lightning-input-field>
+                                        </div>
+                                    </div>
+                                </lightning-record-edit-form>
+                            </div>
+                        </template>
+                    </template>
+                </div>
+            </template>
+        </template>
+    </template>
+
+
+</template>

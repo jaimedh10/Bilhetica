@@ -1,58 +1,224 @@
+<!-- Setup Assistant-->
 <template>
-    <lightning-card title="Venue" icon-name="custom:custom4">
-        <div class="slds-is-relative">
-            <lightning-record-edit-form object-api-name={venueObject} onsuccess={handleSuccess} onload={hideLoading}
-                onsubmit={showLoading} onerror={errorDefaultMessage}>
-                <lightning-messages> </lightning-messages>
-                <div class="slds-grid slds-gutters">
-                    <div class="slds-col">
-                        <lightning-input-field field-name="Name"></lightning-input-field>
-                        <lightning-input-field field-name="Venue_Opening__c"></lightning-input-field>
-                        <lightning-input-field field-name="Venue_Location__c"></lightning-input-field>
-                    </div>
-                    <div class="slds-col">
-                        <lightning-input-field field-name="Capacity__c"></lightning-input-field>
-                        <lightning-input-field field-name="Venue_Closing_Time__c"></lightning-input-field>
-                        <lightning-input-field field-name="Type__c"></lightning-input-field>
-                    </div>
-                </div>
-                <div class="slds-var-m-top_medium">
-                    <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
-                </div>
-            </lightning-record-edit-form>
-
-            <template if:true={showSectionButton}>
-                <div class="slds-var-m-top_medium">
-                    <lightning-button label="Add Section" onclick={handleAddSection}></lightning-button>
-                </div>
-                <template if:true={showSectionForm}>
-                    <lightning-input type="number" name="numberOfSections" value={numberOfSections}
-                        onchange={handleNumberOfSections} placeholder="Enter the number of Sections"
-                        label="How many sections?" max="99" required></lightning-input>
-                    <template for:each={sections} for:item="section">
-                        <div class="slds-border_bottom slds-var-p-around_medium" key={section.sectionId}>
-                            <lightning-record-edit-form object-api-name={venueObject} record-id={section.sectionId}
-                                onsuccess={handleSectionUpdate} onload={hideLoading} onsubmit={showLoading}
-                                onerror={errorDefaultMessage}>
-                                <lightning-messages> </lightning-messages>
-                                <!--  -->
-                                <div class="slds-grid slds-gutters">
-                                    <div class="slds-col">
-                                        <lightning-input-field field-name="Name"></lightning-input-field>
-                                        <lightning-button variant="brand" type="submit" label="Update Section"></lightning-button>
+    <template if:true={showSetupForm}>
+        <lightning-card>
+            <div class="slds-is-relative">
+                <ol class="slds-setup-assistant">
+                    <li class="slds-setup-assistant__item">
+                        <article class="slds-setup-assistant__step">
+                            <div class="slds-setup-assistant__step-summary">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure">
+                                        <lightning-progress-ring value={venueProgressRing} variant="base-autocomplete">
+                                        </lightning-progress-ring>
                                     </div>
-                                    <div class="slds-col">
-                                        <lightning-input-field field-name="Capacity__c"></lightning-input-field>
-                                        <lightning-input-field field-name="Venue__c" value={section.Venue__c}></lightning-input-field>
+                                    <div class="slds-media__body slds-m-top_x-small">
+                                        <div class="slds-media">
+                                            <div class="slds-setup-assistant__step-summary-content slds-media__body">
+                                                <h3 class="slds-setup-assistant__step-summary-title slds-text-heading_small">
+                                                    Create Venue</h3>
+                                                <p>Insert the details about your venue and other related information
+                                                    like the sections and rows.
+                                                </p>
+                                            </div>
+                                            <div class="slds-media__figure slds-media__figure_reverse">
+                                                <button class="slds-button slds-button_outline-brand"
+                                                    onclick={handleShortVenueForm}>Create Venue</button>
+                                                <p class="slds-text-align_right slds-text-color_weak slds-p-top_medium">
+                                                    15 mins
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </lightning-record-edit-form>
-                        </div>
-                    </template>
-                </template>
+                            </div>
+                        </article>
+                    </li>
+                    <li class="slds-setup-assistant__item">
+                        <article class="slds-setup-assistant__step">
+                            <div class="slds-setup-assistant__step-summary">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure">
+                                        <lightning-progress-ring value={discountProgressRing} variant="base-autocomplete">
+                                        </lightning-progress-ring> 
+                                    </div>
+                                    <div class="slds-media__body slds-var-m-top_x-small">
+                                        <div class="slds-media">
+                                            <div class="slds-setup-assistant__step-summary-content slds-media__body">
+                                                <h3
+                                                    class="slds-setup-assistant__step-summary-title slds-text-heading_small">
+                                                    Create Discounts</h3>
+                                                <p>Insert information regarding discounts
+                                                </p>
+                                            </div>
+                                            <div class="slds-media__figure slds-media__figure_reverse">
+                                                <button class="slds-button slds-button_outline-brand"
+                                                    onclick={handleShortDiscountForm}>Create Discounts</button>
+                                                <p class="slds-text-align_right slds-text-color_weak slds-p-top_medium">
+                                                    5 mins</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </li>
+                    <li class="slds-setup-assistant__item">
+                        <article class="slds-setup-assistant__step">
+                            <div class="slds-setup-assistant__step-summary">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure">
+                                        <lightning-progress-ring value={categoryProgressRing} variant="base-autocomplete">
+                                        </lightning-progress-ring>                                        
+                                    </div>
+                                    <div class="slds-media__body slds-var-m-top_x-small">
+                                        <div class="slds-media">
+                                            <div class="slds-setup-assistant__step-summary-content slds-media__body">
+                                                <h3
+                                                    class="slds-setup-assistant__step-summary-title slds-text-heading_small">
+                                                    Create Categories</h3>
+                                                <p>Create Categories to group your future events by type.
+                                                </p>
+                                            </div>
+                                            <div class="slds-media__figure slds-media__figure_reverse">
+                                                <button class="slds-button slds-button_outline-brand"
+                                                    onclick={handleShortCategoriesForm}>Create Categories</button>
+                                                <p class="slds-text-align_right slds-text-color_weak slds-p-top_medium">
+                                                    5 mins
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </li>
+                </ol>
+            </div>
+        </lightning-card>
+    </template>
+
+    <!-- Venue - invoca o componente -->
+    <template if:true={showShortVenueForm}>
+        <lightning-card title="Venue" icon-name="custom:custom4">
+            <div class="slds-is-relative">
+                <c-venue-wizard></c-venue-wizard>
+            </div>
+            <!-- record-id={} -->
+            <template if:true={showButtons}>
+                <div class="slds-is-relative">
+                    <!-- <lightning-button variant="brand" label="Done" onclick={hideShortVenueForm} class="slds-var-m-left_x-small">
+                    </lightning-button> -->
+                    <lightning-button variant="neutral" label="Back" onclick={hideShortVenueForm} class="slds-var-m-left_x-small"></lightning-button>
+                </div>
             </template>
-        </div>
-    </lightning-card>
+        </lightning-card>
+    </template>
 
 
+    <!-- Desconto - formulário resumido e formulário de criação de desconto -->
+    <template if:true={showShortDiscountForm}>
+        <lightning-card title="Discount" icon-name="custom:custom17">
+            <div class="slds-is-relative">
+                <h2 class="header">Create Discounts</h2>
+                <p>Create as many discounts as you need</p>
+                <template for:each={discounts} for:item="discount">
+                    <div class="slds-box" key={discount}>
+                        <lightning-record-view-form object-api-name={discountObject} record-id={discount}>
+                            <lightning-messages> </lightning-messages>
+                            <lightning-output-field field-name="Name"></lightning-output-field>
+                        </lightning-record-view-form>
+                    </div>
+                </template>
+                <lightning-button variant="brand" label="Create Discount" onclick={handleDiscountForm}
+                    class="slds-var-m-left_x-small"></lightning-button>
+                <!-- alterar comportamento dos botões (feedback utilizador)-->
+                <lightning-button variant="neutral" label="Back" onclick={hideShortDiscountForm}
+                    class="slds-var-m-left_x-small"></lightning-button>
+                <lightning-button variant="brand" label="Done" onclick={hideShortDiscountForm}
+                    class="slds-var-m-left_x-small"></lightning-button>
+            </div>
+        </lightning-card>
+    </template>
+
+    <template if:true={showDiscountForm}>
+        <lightning-card title="Discount" icon-name="custom:custom17">
+            <div class="slds-is-relative">
+                <lightning-record-edit-form object-api-name={discountObject} onsuccess={handleDiscountSuccess}
+                    onload={hideLoading} onsubmit={showLoading} onerror={errorDefaultMessage}>
+                    <lightning-messages> </lightning-messages>
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col">
+                            <lightning-input-field required field-name="Name"></lightning-input-field>
+                            <lightning-input-field field-name="Description__c"></lightning-input-field>
+                        </div>
+                        <div class="slds-col">
+                            <lightning-input-field field-name="Type__c"></lightning-input-field>
+                            <lightning-input-field field-name="Value__c"></lightning-input-field>
+                        </div>
+                    </div>
+                    <div class="slds-var-m-top_medium">
+                        <lightning-button variant="brand" type="submit" label="Save" class="slds-m-left_x-small">
+                        </lightning-button>
+                        <lightning-button variant="neutral" label="Back" onclick={hideDiscountForm}
+                            class="slds-m-left_x-small"></lightning-button>
+                    </div>
+                </lightning-record-edit-form>
+            </div>
+        </lightning-card>
+    </template>
+
+
+    <!-- Categoria - formulário resumido e formulário de criação de categoria -->
+    <template if:true={showShortCategoriesForm}>
+        <lightning-card title="Category" icon-name="custom:custom11">
+            <div class="slds-is-relative">
+                <h2 class="header">Create Categories</h2>
+                <p>Create as many categories as you need</p>
+                <template for:each={categories} for:item="category">
+                    <div class="slds-box" key={category}>
+                        <lightning-record-view-form object-api-name={categoryObject} record-id={category}>
+                            <lightning-messages> </lightning-messages>
+                            <lightning-output-field field-name="Name"></lightning-output-field>
+                        </lightning-record-view-form>
+                    </div>
+                </template>
+                <lightning-button variant="brand" label="Create Category" onclick={handleCategoriesForm}
+                    class="slds-var-m-left_x-small"></lightning-button>
+                <!-- alterar comportamento dos botões (feedback utilizador)-->
+                <lightning-button variant="neutral" label="Back" onclick={hideShortCategoriesForm}
+                    class="slds-var-m-left_x-small"></lightning-button>
+                <lightning-button variant="brand" label="Done" onclick={hideShortCategoriesForm}
+                    class="slds-var-m-left_x-small"></lightning-button>
+            </div>
+        </lightning-card>
+    </template>
+
+    
+    <template if:true={showCategoriesForm}>
+        <lightning-card title="Event Category" icon-name="custom:custom11">
+            <div class="slds-is-relative">
+                <lightning-record-edit-form object-api-name={categoryObject} onsuccess={handleCategorySuccess}
+                    onload={hideLoading} onsubmit={showLoading} onerror={errorDefaultMessage}>
+                    <lightning-messages> </lightning-messages>
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col">
+                            <lightning-input-field required field-name="Name"></lightning-input-field>
+                            <lightning-input-field field-name="Description__c"></lightning-input-field>
+                        </div>
+                        <div class="slds-col">
+                            <lightning-input-field field-name="Event__c"></lightning-input-field>
+                            <lightning-input-field field-name="Image__c"></lightning-input-field>
+                        </div>
+                    </div>
+                    <div class="slds-var-m-top_medium">
+                        <lightning-button variant="brand" type="submit" label="Save" class="slds-m-left_x-small">
+                        </lightning-button>
+                        <lightning-button variant="neutral" label="Back" onclick={hideCategoriesForm}
+                            class="slds-m-left_x-small"></lightning-button>
+                    </div>
+                </lightning-record-edit-form>
+            </div>
+        </lightning-card>
+    </template>
 </template>

@@ -1,77 +1,119 @@
 import { LightningElement } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
-import VENUE_OBJECT from "@salesforce/schema/Venue__c";
-import createSections from "@salesforce/apex/SetupWizardController.createSections";
+import DISCOUNT_OBJECT from "@salesforce/schema/Discount__c";
+import CATEGORY_OBJECT from "@salesforce/schema/Category__c";
 
 export default class SetupWizard extends LightningElement {
-  venueObject = VENUE_OBJECT;
-  venueId;
+  discountObject = DISCOUNT_OBJECT;
+  categoryObject = CATEGORY_OBJECT;
+  showShortVenueForm = false;
+  showDiscountForm = false;
+  showSetupForm = true;
+  showCategoriesForm = false;
+  showShortDiscountForm = false;
+  showShortCategoriesForm = false;
+  showButtons = false;
 
-  numberOfSections = 0;
+  categories = [];
+  discounts = [];
+  
+  venueProgressRing = 0;
+  categoryProgressRing = 0;
+  discountProgressRing = 0;
 
-  // Boolean p/ mostrar determinado template
-  isLoading = false;
-  showSectionForm = false;
-  showSectionButton = false;
 
-  // Listas
-  sections = [];
 
-  handleNumberOfSections(event) {
-    this.numberOfSections = event.detail.value;
-    if(this.numberOfSections > 0) {
-      createSections({
-        numberOfSections: this.numberOfSections,
-        venueId: this.venueId
-      })
-        .then((result) => {
-          this.sections = result;
-          if(this.sections.length > 0)
-            
-          console.log(result);
-        })
-        .catch((error) => {
-          this.error = error;
-          console.log(error);
-        });
-      
-    } 
-    
+
+  handleShortVenueForm() {
+    this.showShortVenueForm = true;
+    this.showDiscountForm = false;
+    this.showSetupForm = false;
+    this.showCategoriesForm = false;
+    this.showButtons = true;
   }
 
-  handleAddSection() {
-    this.showSectionForm = true;
+  handleDiscountForm() {
+    this.showDiscountForm = true;
+    this.showShortVenueForm = false;
+    this.showSetupForm = false;
+    this.showCategoriesForm = false;
+    this.showShortDiscountForm = false;
   }
 
-  handleSuccess(event) {
-    this.successfulInsert();
-    this.venueId = event.detail.id;
-    this.showSectionButton = true;
-    //updateRecord({ fields: { Id: this.recordId } }); não está a fazer o efeito pretendido
+  handleShortDiscountForm() {
+    this.showShortDiscountForm = true;
+    this.showShortVenueForm = false;
+    this.showSetupForm = false;
+    this.showCategoriesForm = false;
   }
 
-  handleSectionUpdate() {
+  handleCategoriesForm() {
+    this.showCategoriesForm = true;
+    this.showShortCategoriesForm = false;
+    this.showSetupForm = false;
+  }
+
+  handleShortCategoriesForm() {
+    this.showShortCategoriesForm = true;
+    this.showShortVenueForm = false;
+    this.showSetupForm = false;
+    this.showCategoriesForm = false;
+  }
+
+  handleDiscountSuccess(event) {
+    // insere o novo desconto na lista
+    this.discountId = event.detail.id;
+    this.discounts.push(this.discountId);
+    console.table(this.discounts);
+
     this.dispatchToast(
       "Success!",
-      "The Section record has been successfully updated.",
+      "The Discount has been successfully saved.",
       "success"
     );
+    this.hideDiscountForm();
+    this.discountProgressRing = 100;
   }
 
-  successfulInsert() {
+  handleCategorySuccess(event) {
+    this.categoryId = event.detail.id;
+    this.categories.push(this.categoryId);
+    console.table(this.categories);
     this.dispatchToast(
       "Success!",
-      "The Venue record has been successfully saved.",
+      "The Category has been successfully saved",
       "success"
     );
+    this.hideCategoryForm();
+    this.categoryProgressRing = 100;
   }
 
-  errorDefaultMessage() {
-    this.dispatchToast(
-      "Error!",
-      "An unexpected error has ocurred. Please try again",
-      "error"
-    );
+  hideShortVenueForm() {
+    this.showShortVenueForm = false;
+    this.showSetupForm = true;
+    this.venueProgressRing = 100;
+  }
+
+  hideDiscountForm() {
+    this.showDiscountForm = false;
+    this.showShortDiscountForm = true;
+  }
+
+  hideShortDiscountForm() {
+    this.showShortDiscountForm = false;
+    this.showDiscountForm = false;
+    this.showSetupForm = true;
+  }
+
+  hideCategoryForm() {
+    this.showCategoriesForm = false;
+    this.showShortCategoriesForm = true;
+  }
+
+  hideShortCategoriesForm() {
+    this.showShortCategoriesForm = false;
+    this.showCategoriesForm = false;
+    this.showSetupForm = true;
   }
 
   dispatchToast(title, message, variant) {
