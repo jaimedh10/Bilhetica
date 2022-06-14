@@ -9,20 +9,20 @@ import cloneSessionsAndSessionVenues from "@salesforce/apex/SessionWizardControl
  * Creates Session records.
  */
 export default class SessionWizard extends LightningElement {
-  @api recordId; // Id do Evento
+  @api recordId; // Event Id
 
-  // Objectos
+  // Objects
   sessionObject = SESSION_OBJECT;
   sessionVenueObject = SESSION_VENUE_OBJECT;
 
-  // Boolean p/ mostrar determinado template
+  // Boolean, which shows a certain template
   venueSelected;
   venueListEmpty;
   showSessionsSaved = false;
   showCloningModal = false;
   showBasedOnRecordId = false;
   isLoading = false;
-  // Listas
+  // Lists
   sessions = undefined;
   sessionVenues = undefined;
   venues;
@@ -43,14 +43,14 @@ export default class SessionWizard extends LightningElement {
   queryTerm = "";
   error;
 
-  // Método para apresentar o modal de clonagem de sessões
+  // Method to display session cloning modal
   toggleCloningModal() {
     if (this.sessionsToClone === undefined || this.sessionsToClone.length === 0)
-      this.dispatchToast("Warning", "There are no selected sessions", "info");
+      this.dispatchToast("Warning", "There are no selected sessions.", "info");
     else this.showCloningModal = !this.showCloningModal;
   }
 
-  // Método para clonar sessões
+  // Method to clone sessions
   cloneSessions() {
     this.showLoading();
     if (
@@ -60,7 +60,7 @@ export default class SessionWizard extends LightningElement {
     ) {
       this.dispatchToast(
         "Warning",
-        "In order to clone Sessions, you need to choose the periodicity",
+        "In order to clone Sessions, you need to choose the periodicity.",
         "info"
       );
     } else {
@@ -116,7 +116,7 @@ export default class SessionWizard extends LightningElement {
     this.peridiocityValue = event.detail.value;
   }
 
-  // Método para pesquisar o espaço com base no termo de pesquisa introduzido
+  // Method to search the venue, based on the search term typed
   handleSearch(event) {
     this.queryTerm = event.target.value;
     findVenues({ queryTerm: this.queryTerm }) // recordId: this.recordId
@@ -135,7 +135,7 @@ export default class SessionWizard extends LightningElement {
       });
   }
 
-  // Método para mostrar os registos do Session Venues
+  // Method to show Session Venues records
   handleShow() {
     this.showTemplateSesssionVenues = true;
   }
@@ -182,7 +182,7 @@ export default class SessionWizard extends LightningElement {
     console.table(this.sessionVenues);
   }
 
-  // Método para seleccionar o espaço
+  // Method to handle the venue selection
   selectVenue(event) {
     this.venueSelected = false;
     this.venueId = undefined;
@@ -220,7 +220,7 @@ export default class SessionWizard extends LightningElement {
   errorDefaultMessage() {
     this.dispatchToast(
       "Error!",
-      "An unexpected error has ocurred. Please try again",
+      "An unexpected error has ocurred. Please try again.",
       "error"
     );
   }
@@ -235,31 +235,3 @@ export default class SessionWizard extends LightningElement {
     this.dispatchEvent(evt);
   }
 }
-/* handleSessionVenue(event) {
-    updateRecord({ fields: { Id: this.recordId } });
-    this.sessionVenueId = event.detail.id;
-    this.sessionVenues.push(this.sessionVenueId);
-    console.table(this.sessionsVenues);
-    this.showTemplateSesssionVenues = false;
-  } */
-
-/* list sessionsIds = guardar id;
-     onsucess ref id
-     enviar lista para o apex, para retornar a lista de sessões (do id)
-     mostrar as sessões para depois selecionar e clonar ou n
-     template is loading 
-    
-    import { refreshApex } from "@salesforce/apex";
-    import { updateRecord } from "lightning/uiRecordApi";
-    const fields = {};
-    fields[ID_FIELD.fieldApiName] = this.recordId;
-    const recordInput = { fields };
-    updateRecord(recordInput)
-            .then(() => {
-              return refreshApex(this.recordId);
-            })
-            .catch((error) => {
-              console.log(error);
-            });
-     
-    */

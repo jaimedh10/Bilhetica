@@ -61,8 +61,8 @@ export default class SetupWizard extends LightningElement {
   }
 
   handleDiscountSuccess(event) {
-    // insere o novo desconto na lista
     this.discountId = event.detail.id;
+    // Inserts the new discount Id in the list
     this.discounts.push(this.discountId);
     console.table(this.discounts);
 
@@ -77,6 +77,7 @@ export default class SetupWizard extends LightningElement {
 
   handleCategorySuccess(event) {
     this.categoryId = event.detail.id;
+    // Inserts the new category Id in the list
     this.categories.push(this.categoryId);
     console.table(this.categories);
     this.dispatchToast(
