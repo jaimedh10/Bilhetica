@@ -1,3 +1,7 @@
 <template>
-    <p>Validating Ticket with the Id: <i>{recordId}</i></p>
+    <template if:true={isLoading}>
+        <div>
+            <p>Validating Ticket with the Id: <i>{recordId}</i></p>
+        </div>
+    </template>
 </template>

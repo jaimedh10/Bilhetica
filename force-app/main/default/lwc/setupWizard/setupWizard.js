@@ -12,6 +12,7 @@ export default class SetupWizard extends LightningElement {
   showCategoriesForm = false;
   showShortDiscountForm = false;
   showShortCategoriesForm = false;
+  showButtons = false;
 
   categories = [];
   discounts = [];
@@ -28,6 +29,7 @@ export default class SetupWizard extends LightningElement {
     this.showDiscountForm = false;
     this.showSetupForm = false;
     this.showCategoriesForm = false;
+    this.showButtons = true;
   }
 
   handleDiscountForm() {

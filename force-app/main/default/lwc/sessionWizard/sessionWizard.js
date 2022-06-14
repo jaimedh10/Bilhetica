@@ -1,9 +1,7 @@
 import { LightningElement, api } from "lwc";
-//import { updateRecord } from "lightning/uiRecordApi";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import SESSION_OBJECT from "@salesforce/schema/Session__c";
 import SESSION_VENUE_OBJECT from "@salesforce/schema/Session_Venue__c";
-import NAME_FIELD from "@salesforce/schema/Session__c.Name";
 import findVenues from "@salesforce/apex/SessionWizardController.findVenues";
 import createSessionVenues from "@salesforce/apex/SessionWizardController.createSessionVenues";
 import cloneSessionsAndSessionVenues from "@salesforce/apex/SessionWizardController.cloneSessionsAndSessionVenues";
@@ -12,11 +10,10 @@ import cloneSessionsAndSessionVenues from "@salesforce/apex/SessionWizardControl
  */
 export default class SessionWizard extends LightningElement {
   @api recordId; // Id do Evento
-  isLoading = false;
-  // Objectos e campos
+
+  // Objectos
   sessionObject = SESSION_OBJECT;
   sessionVenueObject = SESSION_VENUE_OBJECT;
-  sessionFields = [NAME_FIELD];
 
   // Boolean p/ mostrar determinado template
   venueSelected;
@@ -24,6 +21,7 @@ export default class SessionWizard extends LightningElement {
   showSessionsSaved = false;
   showCloningModal = false;
   showBasedOnRecordId = false;
+  isLoading = false;
   // Listas
   sessions = undefined;
   sessionVenues = undefined;
@@ -45,12 +43,9 @@ export default class SessionWizard extends LightningElement {
   queryTerm = "";
   error;
 
-
-
-
   // Método para apresentar o modal de clonagem de sessões
   toggleCloningModal() {
-    if (this.sessionsToClone === undefined || this.sessionsToClone.length == 0)
+    if (this.sessionsToClone === undefined || this.sessionsToClone.length === 0)
       this.dispatchToast("Warning", "There are no selected sessions", "info");
     else this.showCloningModal = !this.showCloningModal;
   }
@@ -58,7 +53,11 @@ export default class SessionWizard extends LightningElement {
   // Método para clonar sessões
   cloneSessions() {
     this.showLoading();
-    if ( this.peridiocityValue == null || this.peridiocityValue === undefined || this.peridiocityValue === "") {
+    if (
+      this.peridiocityValue == null ||
+      this.peridiocityValue === undefined ||
+      this.peridiocityValue === ""
+    ) {
       this.dispatchToast(
         "Warning",
         "In order to clone Sessions, you need to choose the periodicity",
@@ -84,6 +83,7 @@ export default class SessionWizard extends LightningElement {
               "The Session(s) were successfully cloned.",
               "success"
             );
+            this.showCloningModal = false;
           }
         })
         .catch((error) => {
@@ -99,7 +99,7 @@ export default class SessionWizard extends LightningElement {
     var i;
     this.checkboxValue = event.currentTarget.checked;
     this.sessionId = event.currentTarget.dataset.session;
-    
+
     if (this.checkboxValue === true) {
       this.sessionsToClone.push(this.sessionId);
     } else {
@@ -146,7 +146,7 @@ export default class SessionWizard extends LightningElement {
       "The Session record has been successfully saved.",
       "success"
     );
-    //updateRecord({ fields: { Id: this.recordId } }); não está a fazer o efeito pretendido
+
     this.sessionId = event.detail.id;
     let sessionsIdList;
 
@@ -234,8 +234,8 @@ export default class SessionWizard extends LightningElement {
     });
     this.dispatchEvent(evt);
   }
-
-  /* handleSessionVenue(event) {
+}
+/* handleSessionVenue(event) {
     updateRecord({ fields: { Id: this.recordId } });
     this.sessionVenueId = event.detail.id;
     this.sessionVenues.push(this.sessionVenueId);
@@ -243,9 +243,23 @@ export default class SessionWizard extends LightningElement {
     this.showTemplateSesssionVenues = false;
   } */
 
-  /* list sessionsIds = guardar id;
+/* list sessionsIds = guardar id;
      onsucess ref id
      enviar lista para o apex, para retornar a lista de sessões (do id)
      mostrar as sessões para depois selecionar e clonar ou n
-     template is loading */
-}
+     template is loading 
+    
+    import { refreshApex } from "@salesforce/apex";
+    import { updateRecord } from "lightning/uiRecordApi";
+    const fields = {};
+    fields[ID_FIELD.fieldApiName] = this.recordId;
+    const recordInput = { fields };
+    updateRecord(recordInput)
+            .then(() => {
+              return refreshApex(this.recordId);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+     
+    */

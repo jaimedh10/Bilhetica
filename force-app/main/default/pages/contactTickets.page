@@ -1,4 +1,4 @@
-<apex:page standardController="Ticket__c" renderAs="pdf" id="pageId">
+<apex:page controller="TicketCustomController" renderAs="pdf">
     <apex:pageBlock>
         <h2>Event Tickets</h2>
         <h3>Ticket Details</h3>
@@ -10,14 +10,14 @@
                 </tr>
                 <tr>
                     <th>Session:</th>
-                    <td><apex:outputText value="{!ticket.Session__c}"></apex:outputText></td>
+                    <td><apex:outputText value="{!ticket.Session__r.Name}"></apex:outputText></td>
                 </tr>
                 <tr>
                     <th>Seat:</th>
-                    <td><apex:outputText value="{!ticket.Seat__c}"></apex:outputText></td>
+                    <td><apex:outputText value="{!ticket.Seat__r.Seat__c}"></apex:outputText></td>
                 </tr>
                 <tr>
-                    <td><apex:outputText value="{!ticket.QR_Code__c}"></apex:outputText></td>
+                    <td><apex:image value="{!ticket.QRCode_Url__c}"/></td>
                 </tr>
         	</table>
         </apex:repeat>

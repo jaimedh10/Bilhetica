@@ -16,6 +16,7 @@ export default class VenueWizard extends LightningElement {
 
   // Boolean p/ mostrar determinado template
   isLoading = false;
+  noSections = false;
   showVenueForm = false;
   showShortVenueForm = true;
   showSectionForm = false;
@@ -39,8 +40,23 @@ export default class VenueWizard extends LightningElement {
     this.venues.push(this.venueId);
     this.successfulInsert();
     this.disabled = true;
-    this.finishButton = false;
-    this.showSectionButton = true;
+    if(this.noSections === true) {
+      createRows({
+        numberOfRows: 1,
+        sectionId: this.venueId
+      })
+        .then((result) => {
+          console.log(result);
+        })
+        .catch((error) => {
+          this.error = error;
+          console.log(error);
+        });
+        this.finishButton = false;
+    } else {
+      this.finishButton = true;
+      this.showSectionButton = true;
+    }
     //updateRecord({ fields: { Id: this.recordId } }); não está a fazer o efeito pretendido
   }
 
@@ -82,6 +98,7 @@ export default class VenueWizard extends LightningElement {
           if (this.sections[sectionIndex].rows.length > 0) {
             console.log(result);
             this.showRows = true;
+            this.finishButton = false;
           }
         })
         .catch((error) => {
@@ -99,6 +116,10 @@ export default class VenueWizard extends LightningElement {
   handleVenueForm() {
     this.showVenueForm = true;
     this.showShortVenueForm = false;
+  }
+
+  handleCheckboxSections() {
+    this.noSections = !this.noSections;
   }
 
   handleNumberOfSections(event) {
@@ -122,8 +143,10 @@ export default class VenueWizard extends LightningElement {
     this.showSectionForm = false;
     this.showSectionButton = false;
     this.showSectionInput = false;
-    this.showShortVenueForm = true;
     this.disabled = false;
+    this.showShortVenueForm = true;
+    this.finishButton = true;
+    this.noSections = false;
   }
 
   hideShortVenueForm() {
@@ -148,15 +171,21 @@ export default class VenueWizard extends LightningElement {
 
   handleRowUpdate() {
     this.showLoading();
+  }
+
+  handleRowSuccess() {
     this.dispatchToast(
       "Success!",
       "The Row record has been successfully updated.",
       "success"
     );
   }
-
+  
   handleSectionUpdate() {
     this.showLoading();
+  }
+
+  handleSectionSuccess() {
     this.dispatchToast(
       "Success!",
       "The Section record has been successfully updated.",

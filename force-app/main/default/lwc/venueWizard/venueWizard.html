@@ -25,6 +25,7 @@
                 <div class="slds-col">
                     <lightning-input-field required field-name="Name"></lightning-input-field>
                     <lightning-input-field field-name="Venue_Opening__c"></lightning-input-field>
+                    <lightning-input-field field-name="Venue_without_Sections__c" onchange={handleCheckboxSections}></lightning-input-field>
                     <lightning-input-field field-name="Venue_Location__c"></lightning-input-field>
                 </div>
                 <div class="slds-col">
@@ -36,6 +37,9 @@
             <div class="slds-var-m-top_medium">
                 <lightning-button variant="brand" type="submit" label="Save" disabled={disabled}
                     class="slds-var-m-left_x-small"></lightning-button>
+                <lightning-button variant="success" label="Finish" onclick={hideVenueForm} disabled={finishButton}
+                    class="slds-var-m-left_x-small">
+                </lightning-button>
                 <template if:true={showSectionButton}>
                     <div class="slds-var-m-top_medium">
                         <lightning-button label="Add Section" onclick={handleSectionInput}
@@ -64,8 +68,7 @@
                 <div class="slds-border_bottom slds-var-p-around_medium" key={section.Id}>
 
                     <lightning-record-edit-form object-api-name={venueObject} record-id={section.Id}
-                        record-type-id={section.RecordTypeId} onload={hideLoading} onsubmit={handleSectionUpdate}
-                        onerror={errorDefaultMessage}>
+                        record-type-id={section.RecordTypeId} onload={hideLoading} onsubmit={handleSectionUpdate} onsuccess={handleSectionSuccess}>
                         <lightning-messages> </lightning-messages>
                         <div class="slds-grid slds-gutters">
                             <div class="slds-col">
@@ -89,7 +92,7 @@
                         <template for:each={section.rows} for:item="row">
                             <div class="slds-border_bottom slds-var-p-around_medium" key={row.Id}>
                                 <lightning-record-edit-form object-api-name={rowObject} record-id={row.Id}
-                                    onload={hideLoading} onsubmit={handleRowUpdate} onerror={errorDefaultMessage}>
+                                    onload={hideLoading} onsubmit={handleRowUpdate} onsuccess={handleRowSuccess}>
                                     <lightning-messages> </lightning-messages>
                                     <div class="slds-grid slds-gutters">
                                         <div class="slds-col">
