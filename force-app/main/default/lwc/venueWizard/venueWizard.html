@@ -13,7 +13,6 @@
             </template>
             <lightning-button variant="brand" label="Create Venue" onclick={handleVenueForm}
                 class="slds-var-m-left_x-small"></lightning-button>
-            <!-- alterar comportamento dos botões (feedback utilizador)-->
         </div>
     </template>
 
@@ -52,7 +51,7 @@
     </template>
 
 
-    <!-- Apresenta o input de introdução do número de Sections a criar -->
+    <!-- Displays the input, concerning the number of Sections to be created for the Venue -->
     <template if:true={showSectionInput}>
         <lightning-input type="number" name="numberOfSections" value={numberOfSections}
             onchange={handleNumberOfSections} placeholder="Enter the number of Sections" label="How many sections?"
@@ -62,7 +61,7 @@
         <lightning-button variant="success" label="Finish" onclick={hideVenueForm} disabled={finishButton}
                     class="slds-var-m-left_x-small">
         </lightning-button>
-        <!-- Apresenta o formulário para criação de Sections -->
+        <!-- Displays the form for creating Sections -->
         <template if:true={showSectionForm}>
             <template for:each={sections} for:item="section">
                 <div class="slds-border_bottom slds-var-p-around_medium" key={section.Id}>

@@ -98,7 +98,7 @@
         </lightning-card>
     </template>
 
-    <!-- Venue - invoca o componente -->
+    <!-- Venue - component call -->
     <template if:true={showShortVenueForm}>
         <lightning-card title="Venue" icon-name="custom:custom4">
             <div class="slds-is-relative">
@@ -116,7 +116,7 @@
     </template>
 
 
-    <!-- Desconto - formulário resumido e formulário de criação de desconto -->
+    <!-- Discount - summary form and discount creation form -->
     <template if:true={showShortDiscountForm}>
         <lightning-card title="Discount" icon-name="custom:custom17">
             <div class="slds-is-relative">
@@ -132,7 +132,6 @@
                 </template>
                 <lightning-button variant="brand" label="Create Discount" onclick={handleDiscountForm}
                     class="slds-var-m-left_x-small"></lightning-button>
-                <!-- alterar comportamento dos botões (feedback utilizador)-->
                 <lightning-button variant="neutral" label="Back" onclick={hideShortDiscountForm}
                     class="slds-var-m-left_x-small"></lightning-button>
                 <lightning-button variant="brand" label="Done" onclick={hideShortDiscountForm}
@@ -169,7 +168,7 @@
     </template>
 
 
-    <!-- Categoria - formulário resumido e formulário de criação de categoria -->
+    <!-- Categoria - summary form and category creation form -->
     <template if:true={showShortCategoriesForm}>
         <lightning-card title="Category" icon-name="custom:custom11">
             <div class="slds-is-relative">
@@ -185,7 +184,6 @@
                 </template>
                 <lightning-button variant="brand" label="Create Category" onclick={handleCategoriesForm}
                     class="slds-var-m-left_x-small"></lightning-button>
-                <!-- alterar comportamento dos botões (feedback utilizador)-->
                 <lightning-button variant="neutral" label="Back" onclick={hideShortCategoriesForm}
                     class="slds-var-m-left_x-small"></lightning-button>
                 <lightning-button variant="brand" label="Done" onclick={hideShortCategoriesForm}
